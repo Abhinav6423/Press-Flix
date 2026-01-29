@@ -1,0 +1,30 @@
+# =========================
+# BACKEND
+# =========================
+Backend/node_modules/
+Backend/dist/
+Backend/build/
+Backend/.env
+
+# If using uploads/temp files
+Backend/uploads/
+Backend/temp/
+
+# =========================
+# FRONTEND
+# =========================
+Frontend/node_modules/
+Frontend/dist/
+Frontend/build/
+Frontend/.env
+
+# React / Vite / Next cache
+Frontend/.cache/
+Frontend/.next/
+Frontend/out/
+Frontend/.vercel/
+
+# =========================
+# TEST / COVERAGE
+# =========================
+coverage/
