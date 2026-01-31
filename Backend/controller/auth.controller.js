@@ -2,34 +2,35 @@ import User from "../modals/userModal.js";
 
 /**
  * POST /auth/login
- * Firebase already authenticated the user.
+ * Firebase already authenticated the user (via middleware)
  * This endpoint:
- *  - creates user if first login
+ *  - blocks unverified emails
+ *  - creates user on first login
+ *  - syncs Firebase UID
  *  - returns DB user
- */
-
-/**
- * POST /auth/login
- * Called once after Firebase auth
- * This is the ONLY place that creates users
  */
 export const loginOrSignup = async (req, res) => {
   try {
     const { firebaseUid, firebaseUser } = req;
 
-    console.log("🔥 loginOrSignup UID:", firebaseUid);
+    // 🔐 HARD BLOCK: email must be verified
+    if (!firebaseUser.emailVerified) {
+      return res.status(403).json({
+        message: "Email not verified. Please verify your email to continue.",
+      });
+    }
 
     const user = await User.findOneAndUpdate(
       { email: firebaseUser.email },
       {
         $setOnInsert: {
           email: firebaseUser.email,
-          name: firebaseUser.name,
-          avatar: firebaseUser.avatar,
+          name: firebaseUser.name || "User",
+          avatar: firebaseUser.avatar || null,
           pagesCreated: 0,
         },
         $set: {
-          firebaseUid, // ✅ ONLY HERE
+          firebaseUid,
         },
       },
       {
@@ -38,6 +39,7 @@ export const loginOrSignup = async (req, res) => {
       }
     );
 
+
     return res.status(200).json(user);
   } catch (err) {
     console.error("loginOrSignup error:", err);
@@ -45,9 +47,10 @@ export const loginOrSignup = async (req, res) => {
   }
 };
 
-
-
-
+/**
+ * GET /auth/me
+ * Returns current authenticated user
+ */
 export const getMe = async (req, res) => {
   try {
     const user = await User.findOne({ firebaseUid: req.firebaseUid });
@@ -56,12 +59,9 @@ export const getMe = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user);
+    return res.json(user);
   } catch (err) {
     console.error("getMe error:", err);
-    res.status(500).json({ message: "Failed to fetch user" });
+    return res.status(500).json({ message: "Failed to fetch user" });
   }
 };
-
-
-

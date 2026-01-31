@@ -11,19 +11,30 @@ export const verifyAuth = async (req, res, next) => {
     const token = header.split(" ")[1];
     const decoded = await admin.auth().verifyIdToken(token);
 
-    // 🔥 GUARANTEED FIELDS
+    // ✅ REQUIRED FIELDS
     req.firebaseUid = decoded.uid;
     req.firebaseUser = {
       email: decoded.email,
-      name: decoded.name || decoded.email?.split("@")[0] || "User",
+      emailVerified: decoded.email_verified, // 🔥 IMPORTANT
+      name:
+        decoded.name ||
+        decoded.displayName ||
+        decoded.email?.split("@")[0] ||
+        "User",
       avatar: decoded.picture || null,
     };
 
-    console.log("✅ verifyAuth:", req.firebaseUid, req.firebaseUser.email);
+    console.log(
+      "✅ verifyAuth:",
+      req.firebaseUid,
+      req.firebaseUser.email,
+      "verified:",
+      req.firebaseUser.emailVerified
+    );
 
     next();
   } catch (err) {
     console.error("❌ verifyAuth failed:", err.message);
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };

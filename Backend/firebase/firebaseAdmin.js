@@ -1,18 +1,16 @@
 import admin from "firebase-admin";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+dotenv.config();
+if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+  throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is missing");
+}
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// read JSON manually
 const serviceAccount = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, "serviceAccountKey.json"),
-    "utf8"
-  )
+  process.env.FIREBASE_SERVICE_ACCOUNT_KEY
 );
+
+// 🔥 THIS LINE FIXES THE ERROR
+serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
 
 if (!admin.apps.length) {
   admin.initializeApp({

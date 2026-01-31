@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "./mycomp/Login";
+import Login from "./mycomp/Authentication/Login";
+import Signup from "./mycomp/Authentication/Signup";
 import Home from "./mycomp/Home";
 import Landing from "./mycomp/LandingPage";
 import ProtectedRoute from "./utils/ProtectedRoutes";
@@ -11,6 +12,7 @@ const App = () => {
       {/* Public */}
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Signup />} />
 
       {/* Protected wrapper */}
       <Route element={<ProtectedRoute />}>

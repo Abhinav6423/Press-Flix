@@ -11,18 +11,24 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+            // 🔹 Not logged in
             if (!firebaseUser) {
                 setUser(null);
                 setLoading(false);
                 return;
             }
 
+            // 🔐 Email not verified → treat as logged out
+            if (!firebaseUser.emailVerified) {
+                setUser(null);
+                setLoading(false);
+                return;
+            }
+
             try {
+                // Sync Firebase user with backend
                 await loginOrSignup();
                 const me = await getMe();
-
-                console.log("FIREBASE photoURL:", firebaseUser.photoURL);
-                console.log("ME FROM BACKEND:", me);
 
                 setUser({
                     ...me,
@@ -39,11 +45,10 @@ export const AuthProvider = ({ children }) => {
         return unsub;
     }, []);
 
-
-    // 🔥 LOGOUT LOGIC
+    // 🔥 LOGOUT
     const logout = async () => {
-        await signOut(auth);   // Firebase logout
-        setUser(null);         // Clear app state
+        await signOut(auth);
+        setUser(null);
     };
 
     return (
