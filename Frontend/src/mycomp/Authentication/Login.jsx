@@ -6,6 +6,7 @@ import { auth } from '../../firebase';
 import { loginOrSignup } from '../../api-calls/api.auth';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/Auth.context';
+import Loader from '../../mycomp/Loader'
 const Login = () => {
     const navigate = useNavigate();
     const { user, loading: authLoading } = useAuth();
@@ -51,9 +52,11 @@ const Login = () => {
         if (!authLoading && user) {
             navigate('/home', { replace: true });
         }
-    }, [user, authLoading]);
+    }, [user, authLoading, navigate]);
 
 
+    if (authLoading)
+        return <Loader />;
 
     return (
         <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 font-sans">
