@@ -4,19 +4,16 @@ const UserSchema = new mongoose.Schema(
     {
         firebaseUid: {
             type: String,
-            index: true,   // ✅ indexed, NOT unique
+            unique: true,
         },
         email: {
             type: String,
             required: true,
-            unique: true,  // ✅ ONLY unique field
+            unique: true,
         },
         name: {
             type: String,
             required: true,
-        },
-        avatar: {
-            type: String,
         },
         pagesCreated: {
             type: Number,

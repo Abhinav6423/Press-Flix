@@ -46,6 +46,10 @@ const port = process.env.PORT || 8000;
 import authRoutes from "./routes/auth.routes.js"
 app.use("/auth", authRoutes);
 
+//pitch routes
+import pitchRoutes from "./routes/pitch.routes.js"
+app.use("/api/pitch", pitchRoutes);
+
 //test route
 app.get("/", (req, res) => {
     res.send("hello world");

@@ -1,63 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase';
-import { loginOrSignup } from '../../api-calls/api.auth';
+import { loginUser } from '../../api-calls/login';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/Auth.context';
 import Loader from '../../mycomp/Loader'
 const Login = () => {
     const navigate = useNavigate();
-    const { user, loading: authLoading } = useAuth();
+    const { userData, reloadUserData } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (userData) {
+            navigate("/home");
+        }
+    }, [userData, navigate]);
+
+    /* ---------------- EMAIL / PASSWORD LOGIN ---------------- */
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return;
+
         setLoading(true);
+        console.log("Login submit clicked");
 
         try {
-            const userCredential = await signInWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
+            const [result] = await Promise.all([
+                loginUser(email, password),
+                new Promise(resolve => setTimeout(resolve, 800)),
+            ]);
 
-            if (!userCredential.user.emailVerified) {
-                toast.error('Please verify your email before logging in.');
+            if (!result?.success) {
+                toast.error(result?.message || "Login failed");
+                setLoading(false);
                 return;
             }
 
-            await loginOrSignup();
+            console.log("Login successful:", result.message);
 
-            toast.success('Login successful! Welcome back 🚀');
-
-            // ❌ DO NOT navigate here
+            await reloadUserData(); // 🔥 now backend + context sync is stable
+            navigate("/home");
         } catch (err) {
-            let message = 'Login failed.';
-            if (err.code === 'auth/user-not-found') {
-                message = 'No account found with this email.';
-            } else if (err.code === 'auth/wrong-password') {
-                message = 'Incorrect password.';
-            }
-            toast.error(message);
-        } finally {
+            console.error(err);
+            toast.error("Something went wrong");
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        if (!authLoading && user) {
-            navigate('/home', { replace: true });
-        }
-    }, [user, authLoading, navigate]);
 
-
-    if (authLoading)
-        return <Loader />;
-
+    if (loading) return <Loader />;
     return (
         <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 font-sans">
             <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl overflow-hidden">

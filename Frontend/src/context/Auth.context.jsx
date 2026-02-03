@@ -1,61 +1,81 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../firebase";
-import { loginOrSignup, getMe } from "../api-calls/api.auth";
+import { meRoute } from "../api-calls/meRoute";
 
 const AuthContext = createContext(null);
+export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+const AuthProvider = ({ children }) => {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [authReady, setAuthReady] = useState(false); // 🔥 KEY
 
-    useEffect(() => {
-        const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-            // 🔹 Not logged in
-            if (!firebaseUser) {
-                setUser(null);
-                setLoading(false);
-                return;
-            }
+  const fetchUserData = useCallback(async () => {
+    try {
+      const result = await meRoute();
+      console.log("Fetched user data:", result);
 
-            // 🔐 Email not verified → treat as logged out
-            if (!firebaseUser.emailVerified) {
-                setUser(null);
-                setLoading(false);
-                return;
-            }
+      if (result?.success) {
+        setUserData(result.user);
+      } else {
+        setUserData(null);
+      }
+    } catch {
+      setUserData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-            try {
-                // Sync Firebase user with backend
-                await loginOrSignup();
-                const me = await getMe();
+  // 1️⃣ Firebase auth listener (ONLY sets authReady)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (!firebaseUser) {
+        setUserData(null);
+        setLoading(false);
+        setAuthReady(false);
+        return;
+      }
 
-                setUser({
-                    ...me,
-                    avatar: me.avatar || firebaseUser.photoURL || null,
-                });
-            } catch (err) {
-                console.error("Auth sync failed:", err.message);
-                setUser(null);
-            } finally {
-                setLoading(false);
-            }
-        });
+      setAuthReady(true); // ✅ firebase user confirmed
+    });
 
-        return unsub;
-    }, []);
+    return unsubscribe;
+  }, []);
 
-    // 🔥 LOGOUT
-    const logout = async () => {
-        await signOut(auth);
-        setUser(null);
-    };
+  // 2️⃣ Backend call (ONLY ONCE when authReady becomes true)
+  useEffect(() => {
+    if (authReady) {
+      fetchUserData();
+    }
+  }, [authReady, fetchUserData]);
 
-    return (
-        <AuthContext.Provider value={{ user, loading, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  const logoutUser = async () => {
+    await signOut(auth);
+    setUserData(null);
+    setAuthReady(false);
+    setLoading(false);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        userData,
+        loading,
+        reloadUserData: fetchUserData,
+        logoutUser,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export default AuthProvider;

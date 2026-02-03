@@ -19,7 +19,7 @@ import {
 import { useAuth } from "../context/Auth.context";
 
 const Home = () => {
-  const { user, loading, logout } = useAuth();
+  const { userData : user , loading, logoutUser } = useAuth();
 
   // ⏳ Wait for auth resolution
   if (loading) return null;
@@ -70,18 +70,13 @@ const Home = () => {
                 <span className="text-sm font-medium text-zinc-200">{user.name}</span>
                 {user.email && <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">{user.email}</span>}
               </div>
-              <img
-                src={user.avatar || "https://via.placeholder.com/40"}
-                className="w-9 h-9 rounded-full border border-white/10 object-cover bg-zinc-800"
-                alt={user.name}
-                referrerPolicy="no-referrer"
-              />
+
             </div>
 
             <div className="h-6 w-px bg-white/10 hidden md:block" />
 
             <button
-              onClick={logout}
+              onClick={logoutUser}
               className="flex items-center gap-2 text-zinc-400 hover:text-red-400 transition-colors text-sm font-medium"
             >
               <LogOut size={16} />

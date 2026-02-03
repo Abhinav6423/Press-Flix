@@ -25,13 +25,6 @@ const PitchSchema = new mongoose.Schema(
             required: true,
         },
 
-        status: {
-            type: String,
-            enum: ["draft", "published", "paused"],
-            default: "draft",
-        },
-
-
         analytics: {
             views: { type: Number, default: 0 },
             ctaClicks: { type: Number, default: 0 },

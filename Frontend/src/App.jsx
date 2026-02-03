@@ -5,7 +5,7 @@ import Home from "./mycomp/Home";
 import Landing from "./mycomp/LandingPage";
 import ProtectedRoute from "./utils/ProtectedRoutes";
 import CreatePitchCategory from "./mycomp/createPitchCategory";
-import PitchDetailsForm from "./utils/Form";
+import MainForm from "./mycomp/Form/MainForm";
 const App = () => {
   return (
     <Routes>
@@ -18,7 +18,7 @@ const App = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/home" element={<Home />} />
         <Route path="/category" element={<CreatePitchCategory />} />
-        <Route path="/pitchForm/:category" element={<PitchDetailsForm />} />
+        <Route path="/creationForm/:category" element={<MainForm />} />
         {/* add more protected routes here */}
       </Route>
     </Routes>

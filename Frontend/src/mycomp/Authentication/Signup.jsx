@@ -1,62 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-  sendEmailVerification
-} from 'firebase/auth';
-import { auth } from '../../firebase';
-import { loginOrSignup } from '../../api-calls/api.auth';
 import toast from 'react-hot-toast';
+import { signUpUser } from "../../api-calls/register";
+import { useAuth } from "../../context/Auth.context";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/home");
+    }
+  }, [user, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     setLoading(true);
-
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const result = await signUpUser(email, password , username);
 
-      await updateProfile(userCredential.user, {
-        displayName: username,
-      });
+      if (result?.success) {
+        toast.success("Account created! Please verify your email before logging in.");
 
-      await sendEmailVerification(userCredential.user);
+        setUsername("");
+        setEmail("");
+        setPassword("");
 
-      toast.success(
-        "Signup successful! Check your email (and spam) to verify, then login."
-      );
-
-      // 🔥 IMPORTANT: log user out after signup
-      await auth.signOut();
-
-      navigate("/login");
-    } catch (err) {
-      console.error(err);
-
-      let message = "Signup failed. Please try again.";
-      if (err.code === "auth/email-already-in-use") {
-        message = "Email already exists. Please login.";
+        navigate("/login");
+      } else {
+        toast.error(result?.message || "Registration failed");
       }
-
-      toast.error(message);
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 font-sans">

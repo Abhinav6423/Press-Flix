@@ -1,23 +1,31 @@
-import Pitch from "../models/Pitch.js";
+import Pitch from "../modals/pitchModal.js";
+
 
 export const createPitch = async (req, res) => {
-    try {
-        const { title, category, data, slug } = req.body;
-
-        const pitch = await Pitch.create({
-            owner: req.user._id || req.userId || req.firebaseUid, // depending on your setup
-            title,
-            category,
-            data,
-            slug: slug || `${title.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
-        });
-
-        return res.status(201).json(pitch);
-    } catch (err) {
-        console.error("createPitch error:", err);
-        return res.status(500).json({ message: "Failed to create pitch" });
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
+
+    const { title, category, data, slug } = req.body;
+
+    const pitch = await Pitch.create({
+      owner: req.user.id,
+      title,
+      category,
+      data,
+      slug:
+        slug ||
+        `${title.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
+    });
+
+    return res.status(201).json(pitch);
+  } catch (err) {
+    console.error("createPitch error:", err);
+    return res.status(500).json({ message: "Failed to create pitch" });
+  }
 };
+
 
 export const getMyPitches = async (req, res) => {
     try {

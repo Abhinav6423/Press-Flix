@@ -61,7 +61,7 @@ const CreatePitchCategory = () => {
     const handleContinue = () => {
         if (selected) {
             console.log("Selected Category:", selected);
-            navigate(`/pitchForm/${selected}`);
+            navigate(`/creationForm/${selected}`);
 
         }
     };
