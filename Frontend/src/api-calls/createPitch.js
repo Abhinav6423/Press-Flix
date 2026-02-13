@@ -14,10 +14,22 @@ export const createPitchApi = async ({ title, category, data, slug }) => {
       data: res.data,
     };
   } catch (err) {
+    console.error("Create Pitch Error:", err?.response || err.message);
+
+    // Unauthorized
     if (err.response?.status === 401) {
       return { success: false, message: "Unauthorized" };
     }
 
+    // Network / server down
+    if (!err.response) {
+      return {
+        success: false,
+        message: "Network error. Please check your connection.",
+      };
+    }
+
+    // Backend error message
     return {
       success: false,
       message:

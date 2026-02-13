@@ -23,11 +23,13 @@ export const firebaseLogin = async (req, res) => {
 
     let user = await User.findOne({ firebaseUid: decoded.uid });
 
+    /* ================= CREATE USER ================= */
     if (!user) {
       user = await User.create({
         firebaseUid: decoded.uid,
         email: decoded.email,
         name: decoded.name || decoded.email.split("@")[0],
+        emailVerified: decoded.email_verified || false,   // ✅ ADD THIS
       });
 
       return res.status(201).json({
@@ -37,7 +39,14 @@ export const firebaseLogin = async (req, res) => {
       });
     }
 
-    // User already exists
+    /* ================= SYNC EMAIL VERIFIED ================= */
+    // If user verified later → update Mongo automatically
+    if (user.emailVerified !== decoded.email_verified) {
+      user.emailVerified = decoded.email_verified;
+      await user.save();
+    }
+
+    /* ================= LOGIN ================= */
     return res.status(200).json({
       success: true,
       message: "User logged in successfully",
@@ -52,6 +61,7 @@ export const firebaseLogin = async (req, res) => {
     });
   }
 };
+
 
 
 export const getLoggedInUser = async (req, res) => {

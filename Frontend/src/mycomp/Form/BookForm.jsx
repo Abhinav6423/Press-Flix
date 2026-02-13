@@ -1,148 +1,146 @@
-import React from "react"
-import { X } from "lucide-react"
-import { Send, User, BookOpen, Hash, FileText, Sparkles } from 'lucide-react';
-const BookForm = ({ title, slug, data, setTitle, setSlug, setData, handleSubmit }) => {
+import React from "react";
+import { Send, User, BookOpen, Hash, FileText, Sparkles, Target } from "lucide-react";
 
+const BookForm = ({
+    title,
+    slug,
+    data,
+    setTitle,
+    setSlug,
+    setData,
+    handleSubmit,
+    loading,
+}) => {
     const updateField = (field, value) => {
-        setData({ [field]: value })
-    }
+        setData({ [field]: value });
+    };
 
     const updateCharacter = (field, value) => {
         setData({
             character: {
                 ...(data.character || {}),
-                [field]: value
-            }
-        })
-    }
-
-
+                [field]: value,
+            },
+        });
+    };
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-gray-100 flex items-center justify-center p-4">
+            <div className="w-full max-w-3xl bg-[#121212] border border-[#2a2a2a] rounded-2xl shadow-2xl overflow-hidden relative">
 
-            {/* CARD CONTAINER */}
-            <div className="w-full max-w-2xl bg-[#121212] border border-[#2a2a2a] rounded-2xl shadow-2xl overflow-hidden relative">
-
-                {/* DECORATIVE TOP GRADIENT */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 via-purple-600 to-blue-600"></div>
 
                 <div className="p-8 space-y-8">
 
                     {/* HEADER */}
-                    <div className="text-center space-y-2 mb-8">
-                        <h2 className="text-2xl font-bold tracking-tight text-white">Project Details</h2>
-                        <p className="text-sm text-gray-500">Configure the metadata for your Press-Flix page.</p>
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold">Create Book Landing Pitch</h2>
+                        <p className="text-sm text-gray-500">High-conversion pitch builder</p>
                     </div>
 
-                    <div className="space-y-6">
-
-                        {/* ROW 1: TITLE & SLUG */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                            {/* TITLE */}
-                            <div className="group">
-                                <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 group-focus-within:text-red-500 transition-colors">
-                                    <BookOpen size={14} /> Title
-                                </label>
-                                <input
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Echoes of Silica"
-                                    className="w-full bg-[#1a1a1a] border border-[#333] text-white px-4 py-3 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-gray-600"
-                                />
-                            </div>
-
-                            {/* SLUG */}
-                            <div className="group">
-                                <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 group-focus-within:text-blue-500 transition-colors">
-                                    <Hash size={14} /> Slug
-                                </label>
-                                <input
-                                    type="text"
-                                    value={slug}
-                                    onChange={(e) => setSlug(e.target.value)}
-                                    placeholder="echoes-of-silica"
-                                    className="w-full bg-[#1a1a1a] border border-[#333] text-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-600 font-mono text-sm"
-                                />
-                            </div>
-                        </div>
-
-                        {/* AUTHOR */}
-                        <div className="group">
-                            <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 group-focus-within:text-purple-500 transition-colors">
-                                <User size={14} /> Author
-                            </label>
-                            <input
-                                type="text"
-                                value={data.author || ""}
-                                onChange={(e) => updateField("author", e.target.value)}
-                                placeholder="J.D. Kincaid"
-                                className="w-full bg-[#1a1a1a] border border-[#333] text-white px-4 py-3 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all placeholder:text-gray-600"
-                            />
-                        </div>
-
-                        {/* SYNOPSIS */}
-                        <div className="group">
-                            <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 group-focus-within:text-green-500 transition-colors">
-                                <FileText size={14} /> Synopsis
-                            </label>
-                            <textarea
-                                rows={4}
-                                value={data.synopsis || ""}
-                                onChange={(e) => updateField("synopsis", e.target.value)}
-                                placeholder="In the glass city of Aero, shadows have a mind of their own..."
-                                className="w-full bg-[#1a1a1a] border border-[#333] text-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all placeholder:text-gray-600 resize-none"
-                            />
-                        </div>
-
-                        {/* CHARACTER SECTION */}
-                        <div className="bg-[#1a1a1a]/50 border border-[#333] p-5 rounded-xl space-y-4">
-                            <div className="flex items-center gap-2 text-sm text-gray-300 font-medium">
-                                <Sparkles size={16} className="text-yellow-500" />
-                                <span>Key Character</span>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-3">
-                                <input
-                                    placeholder="Name"
-                                    value={data.character?.name || ""}
-                                    onChange={(e) => updateCharacter("name", e.target.value)}
-                                    className="bg-[#121212] border border-[#333] text-sm px-3 py-2 rounded focus:border-yellow-500 focus:outline-none text-white placeholder:text-gray-600"
-                                />
-                                <input
-                                    placeholder="Role (e.g. Hero)"
-                                    value={data.character?.role || ""}
-                                    onChange={(e) => updateCharacter("role", e.target.value)}
-                                    className="bg-[#121212] border border-[#333] text-sm px-3 py-2 rounded focus:border-yellow-500 focus:outline-none text-white placeholder:text-gray-600"
-                                />
-                                <input
-                                    placeholder="Trait (e.g. Stoic)"
-                                    value={data.character?.trait || ""}
-                                    onChange={(e) => updateCharacter("trait", e.target.value)}
-                                    className="bg-[#121212] border border-[#333] text-sm px-3 py-2 rounded focus:border-yellow-500 focus:outline-none text-white placeholder:text-gray-600"
-                                />
-                            </div>
-                        </div>
-
+                    {/* TITLE + SLUG */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Book Title"
+                            className="input"
+                        />
+                        <input
+                            value={slug}
+                            onChange={(e) => setSlug(e.target.value)}
+                            placeholder="slug"
+                            className="input font-mono text-sm"
+                        />
                     </div>
 
-                    {/* SUBMIT BUTTON */}
-                    <div className="pt-4">
-                        <button
-                            onClick={handleSubmit}
-                            className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-3.5 rounded-lg transition-all duration-200 transform hover:scale-[1.01] active:scale-[0.98] shadow-lg shadow-red-900/20"
-                        >
-                            <span>Generate Page</span>
-                            <Send size={18} />
-                        </button>
-                    </div>
+                    {/* IDENTITY */}
+                    <Section title="Book Identity">
+                        <Input value={data.author} onChange={(v) => updateField("author", v)} placeholder="Author Name" />
+                        <Input value={data.genre} onChange={(v) => updateField("genre", v)} placeholder="Genre" />
+                        <Input value={data.hook} onChange={(v) => updateField("hook", v)} placeholder="Hook (1-line emotional pitch)" />
+                        <Input value={data.status} onChange={(v) => updateField("status", v)} placeholder="Status (Draft / Published / Seeking Publisher)" />
+                    </Section>
 
+                    {/* STORY */}
+                    <Section title="Story">
+                        <Textarea value={data.synopsis} onChange={(v) => updateField("synopsis", v)} placeholder="Short Synopsis" />
+                        <Textarea value={data.theme} onChange={(v) => updateField("theme", v)} placeholder="Core Theme" />
+                        <Textarea value={data.world} onChange={(v) => updateField("world", v)} placeholder="World / Setting" />
+                        <Input value={data.tone} onChange={(v) => updateField("tone", v)} placeholder="Tone (Dark, Emotional, Inspirational)" />
+                    </Section>
+
+                    {/* CHARACTER */}
+                    <Section title="Main Character">
+                        <Input value={data.character?.name} onChange={(v) => updateCharacter("name", v)} placeholder="Name" />
+                        <Input value={data.character?.role} onChange={(v) => updateCharacter("role", v)} placeholder="Role" />
+                        <Input value={data.character?.trait} onChange={(v) => updateCharacter("trait", v)} placeholder="Trait" />
+                        <Input value={data.character?.goal} onChange={(v) => updateCharacter("goal", v)} placeholder="Goal" />
+                        <Input value={data.character?.conflict} onChange={(v) => updateCharacter("conflict", v)} placeholder="Conflict / Fear" />
+                    </Section>
+
+                    {/* MARKET */}
+                    <Section title="Market Fit">
+                        <Input value={data.audience} onChange={(v) => updateField("audience", v)} placeholder="Target Audience" />
+                        <Input value={data.comps} onChange={(v) => updateField("comps", v)} placeholder="Comparable Books / Movies" />
+                        <Textarea value={data.usp} onChange={(v) => updateField("usp", v)} placeholder="Unique Selling Point" />
+                    </Section>
+
+                    {/* AUTHORITY */}
+                    <Section title="Author Authority">
+                        <Textarea value={data.authorBio} onChange={(v) => updateField("authorBio", v)} placeholder="Author Bio" />
+                        <Input value={data.credibility} onChange={(v) => updateField("credibility", v)} placeholder="Awards / Credentials / Authority" />
+                    </Section>
+
+                    {/* CONVERSION */}
+                    <Section title="Conversion">
+                        <Input value={data.ctaLabel} onChange={(v) => updateField("ctaLabel", v)} placeholder="CTA Label (Buy / Request Manuscript)" />
+                        <Input value={data.contactEmail} onChange={(v) => updateField("contactEmail", v)} placeholder="Contact Email" />
+                        <Input value={data.coverUrl} onChange={(v) => updateField("coverUrl", v)} placeholder="Cover Image URL" />
+                    </Section>
+
+                    {/* SUBMIT */}
+                    <button
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className={`w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 py-3 rounded-lg ${loading ? "opacity-50 cursor-not-allowed" : ""
+                            }`}
+                    >
+                        {loading ? "Creating..." : "Generate Landing Pitch"}
+                        <Send size={18} />
+                    </button>
                 </div>
             </div>
         </div>
     );
-}
+};
 
-export default BookForm
+/* ---------- SMALL UI HELPERS ---------- */
+
+const Section = ({ title, children }) => (
+    <div className="space-y-3 border border-[#2a2a2a] p-4 rounded-lg">
+        <h3 className="text-sm text-gray-400 uppercase tracking-wider">{title}</h3>
+        {children}
+    </div>
+);
+
+const Input = ({ value = "", onChange, placeholder }) => (
+    <input
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full bg-[#1a1a1a] border border-[#333] px-3 py-2 rounded"
+    />
+);
+
+const Textarea = ({ value = "", onChange, placeholder }) => (
+    <textarea
+        rows={3}
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full bg-[#1a1a1a] border border-[#333] px-3 py-2 rounded"
+    />
+);
+
+export default BookForm;

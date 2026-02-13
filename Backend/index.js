@@ -48,6 +48,7 @@ app.use("/auth", authRoutes);
 
 //pitch routes
 import pitchRoutes from "./routes/pitch.routes.js"
+console.log('Pitch routes loaded successfully ✅')
 app.use("/api/pitch", pitchRoutes);
 
 //test route

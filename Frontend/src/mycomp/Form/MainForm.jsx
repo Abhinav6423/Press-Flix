@@ -1,28 +1,42 @@
-import React, { useState } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 import BookForm from "./BookForm";
 import TechForm from "./TechForm";
 import { createPitchApi } from "../../api-calls/createPitch";
-
+import PitchReady from "../PitchReady";
 const MainForm = () => {
   const { category } = useParams();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [data, setData] = useState({
     book: {},
     tech: {},
   });
 
-  // only allow known categories
+  // Allow only valid categories
   if (!["book", "tech"].includes(category)) {
     return <Navigate to="/category" replace />;
   }
 
-  // update only current category data
+  // Auto-generate slug from title
+  useEffect(() => {
+    if (!title) return;
+
+    const generatedSlug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+
+    setSlug(generatedSlug);
+  }, [title]);
+
+  // Update only current category data
   const setCategoryData = (newData) => {
     setData((prev) => ({
       ...prev,
@@ -34,7 +48,16 @@ const MainForm = () => {
   };
 
   const handleSubmit = async () => {
+    if (loading) return;
+
+    if (!title.trim() || !slug.trim()) {
+      toast.error("Title and slug are required");
+      return;
+    }
+
     try {
+      setLoading(true);
+
       const payload = {
         title,
         slug,
@@ -45,17 +68,23 @@ const MainForm = () => {
       const res = await createPitchApi(payload);
 
       if (!res?.success) {
+        if (res?.message === "Unauthorized") {
+          navigate("/login");
+          return;
+        }
+
         toast.error(res?.message || "Failed to create pitch");
         return;
       }
 
       toast.success("Pitch created successfully 🎉");
-    
-        navigate("/home");
+      navigate(`/pitch-ready/${slug}`);
 
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,6 +99,7 @@ const MainForm = () => {
           setSlug={setSlug}
           setData={setCategoryData}
           handleSubmit={handleSubmit}
+          loading={loading}
         />
       );
 
@@ -83,11 +113,12 @@ const MainForm = () => {
           setSlug={setSlug}
           setData={setCategoryData}
           handleSubmit={handleSubmit}
+          loading={loading}
         />
       );
 
     default:
-      return null;
+      return <Navigate to="/category" replace />;
   }
 };
 
