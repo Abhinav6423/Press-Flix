@@ -7,7 +7,7 @@ const PitchReady = () => {
     const navigate = useNavigate();
     const { slug } = useParams();
 
-    const publicUrl = `${window.location.origin}/p/${slug}`;
+   const publicUrl = `${window.location.origin}/#/p/${slug}`;
 
     const copyToClipboard = async () => {
         try {
