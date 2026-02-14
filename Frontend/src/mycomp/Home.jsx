@@ -140,12 +140,12 @@ const Home = () => {
 
               {topPitch?.slug && (
                 <a
-                  href={`${window.location.origin}/p/${topPitch.slug}`}
+                  href={`${window.location.origin}/#/p/${topPitch.slug}`}
                   className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-indigo-400 transition-colors mt-2"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <span className="truncate max-w-md">{window.location.origin}/p/{topPitch.slug}</span>
+                  <span className="truncate max-w-md">{window.location.origin}/#/p/{topPitch.slug}</span>
                   <ExternalLink size={14} />
                 </a>
               )}
