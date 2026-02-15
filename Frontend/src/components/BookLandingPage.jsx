@@ -44,19 +44,31 @@ const themeStyles = `
 
   /* 3D BOOK ENGINE */
   .book-stage {
-    perspective: 2000px;
-    height: 480px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  perspective: 2000px;
+  height: 500px;   /* was 480px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
   .book-3d {
-    position: relative; width: 260px; height: 390px;
-    transform-style: preserve-3d;
-    transform: rotateY(-25deg) rotateX(10deg);
-    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    box-shadow: 20px 20px 60px rgba(0,0,0,0.3);
+  position: relative;
+  width: 320px;          /* was 260px */
+  height: 400px;         /* was 390px */
+  transform-style: preserve-3d;
+  transform: rotateY(-25deg) rotateX(10deg);
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 25px 25px 70px rgba(0,0,0,0.35);
+}
+
+@media (min-width: 1024px) {
+  .book-3d {
+    width: 360px;
+    height: 540px;
   }
+}
+
+
   .book-3d:hover {
     transform: rotateY(-15deg) rotateX(5deg) scale(1.05) translateY(-10px);
     box-shadow: 30px 40px 90px rgba(0,0,0,0.4);

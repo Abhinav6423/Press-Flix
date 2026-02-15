@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPitchBySlugApi } from "../api-calls/pitchUrlOpen";
 import BookLandingPage from "../components/BookLandingPage";
+import Loader from "../mycomp/Loader";
 
 const PublicPitch = () => {
     const { slug } = useParams();
@@ -22,7 +23,7 @@ const PublicPitch = () => {
         load();
     }, [slug]);
 
-    if (loading) return <div className="p-10">Loading...</div>;
+    if (loading) return <Loader />;
     if (!pitch) return <div className="p-10">Not found</div>;
 
     if (pitch.category === "book") {
