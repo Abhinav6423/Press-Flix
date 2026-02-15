@@ -56,6 +56,15 @@ app.get("/", (req, res) => {
     res.send("hello world");
 })
 
+// ================== HEALTH CHECK ==================
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Server is alive",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 
 //listen
 app.listen(port, () => {
