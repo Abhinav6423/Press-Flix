@@ -244,6 +244,7 @@ const Home = () => {
               <thead>
                 <tr className="border-b border-white/5 bg-white/[0.02]">
                   <th className="p-5 text-xs font-medium uppercase tracking-wider text-zinc-500">Title</th>
+                  <th className="p-5 text-xs font-medium uppercase tracking-wider text-zinc-500">URL</th>
                   <th className="p-5 text-right text-xs font-medium uppercase tracking-wider text-zinc-500">Views</th>
                   <th className="p-5 text-right text-xs font-medium uppercase tracking-wider text-zinc-500">Clicks</th>
                   <th className="p-5 text-right text-xs font-medium uppercase tracking-wider text-zinc-500">Ratio</th>
@@ -251,41 +252,73 @@ const Home = () => {
               </thead>
 
               <tbody className="divide-y divide-white/5">
-                {allPitches.map((pitch) => (
-                  <tr key={pitch._id} className="group hover:bg-white/[0.02] transition-colors">
-                    <td className="p-5">
-                      <p className="text-sm font-medium text-zinc-200 group-hover:text-white">{pitch.title}</p>
-                    </td>
+                {allPitches.map((pitch) => {
+                  const url = pitch?.slug
+                    ? `${window.location.origin}/p/${pitch.slug}`
+                    : null;
 
-                    <td className="p-5 text-right">
-                      <span className="text-sm font-mono text-zinc-400 tabular-nums">
-                        {(pitch.analytics?.views ?? 0).toLocaleString()}
-                      </span>
-                    </td>
+                  return (
+                    <tr key={pitch._id} className="group hover:bg-white/[0.02] transition-colors">
 
-                    <td className="p-5 text-right">
-                      <span className="text-sm font-mono text-zinc-400 tabular-nums">
-                        {(pitch.analytics?.ctaClicks ?? 0).toLocaleString()}
-                      </span>
-                    </td>
+                      {/* TITLE */}
+                      <td className="p-5">
+                        <p className="text-sm font-medium text-zinc-200 group-hover:text-white">
+                          {pitch.title}
+                        </p>
+                      </td>
 
-                    <td className="p-5 text-right">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${Number(getRatio(pitch.analytics?.ctaClicks, pitch.analytics?.views)) > 0
-                        ? 'bg-emerald-500/10 text-emerald-400'
-                        : 'bg-zinc-800 text-zinc-500'
-                        }`}>
-                        {getRatio(
-                          pitch.analytics?.ctaClicks,
-                          pitch.analytics?.views
-                        )}%
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                      {/* URL */}
+                      <td className="p-5">
+                        {url ? (
+                          <a
+                            href={`${window.location.origin}/#/p/${pitch.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-mono text-indigo-400 hover:text-indigo-300 underline-offset-2 hover:underline break-all"
+                          >
+                            {window.location.origin}/#/p/{pitch.slug}
+                          </a>
+                        ) : (
+                          <span className="text-xs text-zinc-600">—</span>
+                        )}
+                      </td>
+
+                      {/* VIEWS */}
+                      <td className="p-5 text-right">
+                        <span className="text-sm font-mono text-zinc-400 tabular-nums">
+                          {(pitch.analytics?.views ?? 0).toLocaleString()}
+                        </span>
+                      </td>
+
+                      {/* CLICKS */}
+                      <td className="p-5 text-right">
+                        <span className="text-sm font-mono text-zinc-400 tabular-nums">
+                          {(pitch.analytics?.ctaClicks ?? 0).toLocaleString()}
+                        </span>
+                      </td>
+
+                      {/* RATIO */}
+                      <td className="p-5 text-right">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${Number(getRatio(pitch.analytics?.ctaClicks, pitch.analytics?.views)) > 0
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : "bg-zinc-800 text-zinc-500"
+                            }`}
+                        >
+                          {getRatio(
+                            pitch.analytics?.ctaClicks,
+                            pitch.analytics?.views
+                          )}%
+                        </span>
+                      </td>
+
+                    </tr>
+                  );
+                })}
 
                 {allPitches.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="p-8 text-center text-zinc-500">
+                    <td colSpan={5} className="p-8 text-center text-zinc-500">
                       No pitches found. Create one to get started.
                     </td>
                   </tr>
@@ -294,6 +327,7 @@ const Home = () => {
             </table>
           </div>
         </div>
+
 
       </main>
     </div>
