@@ -1,72 +1,76 @@
-import dotenv from "dotenv"
-dotenv.config()
-import express from "express"
+import dotenv from "dotenv";
+dotenv.config();
+
+import express from "express";
 import cors from "cors";
 import connectDB from "./dbconfig/db.config.js";
+
 const app = express();
+app.set("trust proxy", 1);
 
-//middlewares
-
+// ================== MIDDLEWARES ==================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://press-flix.vercel.app", // 🔥 your Vercel domain
+    "https://press-flix.vercel.app",
 ];
 
 app.use(
     cors({
         origin: function (origin, callback) {
-
-            // allow requests with no origin (mobile apps, curl, postman)
+            // allow requests with no origin (UptimeRobot, Postman, curl, Render internal)
             if (!origin) return callback(null, true);
 
             if (allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
+                return callback(null, true);
             }
+
+            // allow health check + safe public requests
+            return callback(null, true);
         },
         credentials: false,
         allowedHeaders: ["Content-Type", "Authorization"],
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     })
 );
 
-
-
-//db
-
+// ================== DATABASE ==================
 connectDB();
 
+// ================== ROUTES ==================
 const port = process.env.PORT || 8000;
 
-//auth routes 
-import authRoutes from "./routes/auth.routes.js"
+// Auth routes
+import authRoutes from "./routes/auth.routes.js";
 app.use("/auth", authRoutes);
 
-//pitch routes
-import pitchRoutes from "./routes/pitch.routes.js"
-console.log('Pitch routes loaded successfully ✅')
+// Pitch routes
+import pitchRoutes from "./routes/pitch.routes.js";
+console.log("Pitch routes loaded successfully ✅");
 app.use("/api/pitch", pitchRoutes);
 
-//test route
+// ================== ROOT ==================
 app.get("/", (req, res) => {
-    res.send("hello world");
-})
+    res.status(200).send("PressFlix backend running 🚀");
+});
 
 // ================== HEALTH CHECK ==================
 app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "Server is alive",
-    timestamp: new Date().toISOString(),
-  });
+    res.status(200).json({
+        status: "ok",
+        message: "Server is alive",
+        timestamp: new Date().toISOString(),
+    });
 });
 
+// Handle UptimeRobot HEAD requests (prevents false 503)
+app.head("/health", (req, res) => {
+    res.status(200).end();
+});
 
-//listen
+// ================== SERVER ==================
 app.listen(port, () => {
-    console.log(`listening on port ${port}`);
-})
+    console.log(`Server running on port ${port} 🚀`);
+});
