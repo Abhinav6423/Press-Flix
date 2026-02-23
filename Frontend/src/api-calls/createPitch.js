@@ -1,10 +1,9 @@
 import api from "../api/api.js";
 
-export const createPitchApi = async ({ title, category, data, slug }) => {
+export const createPitchApi = async ({ title, data, slug }) => {
   try {
     const res = await api.post("/api/pitch", {
       title,
-      category,
       data,
       slug,
     });

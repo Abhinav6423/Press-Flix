@@ -19,7 +19,7 @@ export const createPitch = async (req, res) => {
 
         const { title, category, data, slug } = req.body;
 
-        if (!title || !category || !data) {
+        if (!title || !data) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -35,7 +35,6 @@ export const createPitch = async (req, res) => {
         const pitch = await Pitch.create({
             owner: req.user.id,
             title,
-            category,
             data,
             slug: uniqueSlug,
         });

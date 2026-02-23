@@ -113,7 +113,7 @@ const Home = () => {
             <p className="text-zinc-500 mt-1">Welcome back, {user?.name}. Here's what's happening today.</p>
           </div>
 
-          <Link to="/category">
+          <Link to="/create-form">
             <button className="group flex items-center gap-2 bg-white text-black px-5 py-2.5 rounded-full font-medium hover:bg-zinc-200 transition-all shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]">
               <Plus size={18} className="transition-transform group-hover:rotate-90" />
               Create Pitch

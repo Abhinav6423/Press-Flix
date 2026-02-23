@@ -51,6 +51,12 @@ import pitchRoutes from "./routes/pitch.routes.js";
 console.log("Pitch routes loaded successfully ✅");
 app.use("/api/pitch", pitchRoutes);
 
+
+//waitlist routes
+import waitlistRoutes from "./routes/waitlist.route.js";
+console.log("Waitlist routes loaded successfully ✅");
+app.use("/api/waitlist", waitlistRoutes);
+
 // ================== ROOT ==================
 app.get("/", (req, res) => {
     res.status(200).send("PressFlix backend running 🚀");

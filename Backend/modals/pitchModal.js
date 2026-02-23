@@ -13,11 +13,10 @@ const PitchSchema = new mongoose.Schema(
             required: true,
         },
 
-        category: {
-            type: String,
-            enum: ["book", "tech", "service", "product"],
-            required: true,
-        },
+        // category: {
+        //     type: String,
+        //     required: true,
+        // },
 
         slug: {
             type: String,
@@ -28,18 +27,24 @@ const PitchSchema = new mongoose.Schema(
         analytics: {
             views: { type: Number, default: 0 },
             ctaClicks: { type: Number, default: 0 },
+            waitlistCount: { type: Number, default: 0 },
         },
 
-        ctaLink: {
-            label: String,
-            url: String,
-        },
+        // ctaLink: {
+        //     label: String,
+        //     url: String,
+        // },
 
         // 🔥 IMPORTANT
         data: {
             type: mongoose.Schema.Types.Mixed,
             required: true,
         },
+
+        waitlist: {
+            type: Boolean,
+            default: false,
+        }
     },
     { timestamps: true }
 );

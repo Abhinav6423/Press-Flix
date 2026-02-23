@@ -6,17 +6,18 @@ const UserSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+
     email: {
       type: String,
       required: true,
       unique: true,
     },
+
     name: {
       type: String,
       required: true,
     },
 
-    // ✅ ADD THIS FIELD
     emailVerified: {
       type: Boolean,
       default: false,
@@ -26,18 +27,22 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
     topPerformingPitch: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Pitch",
     },
+
     totalViews: {
       type: Number,
       default: 0,
     },
+
     totalCtaClicks: {
       type: Number,
       default: 0,
     },
+
     createdPitches: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, X, Send, Hash, Cpu } from "lucide-react";
+import { Plus, X, Send } from "lucide-react";
 
 const TechForm = ({
     title,
@@ -13,6 +13,7 @@ const TechForm = ({
 }) => {
     const specs = data.specs || [];
     const roadmap = data.roadmap || [];
+    const features = data.features || [];
 
     const updateField = (field, value) => {
         setData({ [field]: value });
@@ -52,154 +53,163 @@ const TechForm = ({
         setData({ roadmap: roadmap.filter((_, i) => i !== index) });
     };
 
+    /* ---------------- FEATURES ---------------- */
+
+    const addFeature = () => {
+        setData({ features: [...features, ""] });
+    };
+
+    const updateFeature = (index, value) => {
+        const updated = [...features];
+        updated[index] = value;
+        setData({ features: updated });
+    };
+
+    const removeFeature = (index) => {
+        setData({ features: features.filter((_, i) => i !== index) });
+    };
+
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-gray-100 flex items-center justify-center p-4">
-            <div className="w-full max-w-2xl bg-[#121212] border border-[#2a2a2a] rounded-2xl shadow-2xl p-8 space-y-6">
+        <div className="min-h-screen max-w-screen bg-[#0b0b0c] text-gray-100 flex flex-col">
 
-                <h2 className="text-xl font-semibold text-center">Tech Pitch</h2>
+            {/* HEADER */}
+            <div className="px-6 py-6 border-b border-white/5 bg-[#050505]/80 backdrop-blur">
+                <h2 className="text-2xl font-semibold">Tech Pitch Builder</h2>
+                <p className="text-xs text-zinc-400">Create structured product landing pitch</p>
+            </div>
 
-                {/* TITLE + SLUG */}
-                <div className="grid grid-cols-2 gap-4">
-                    <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Product Name"
-                        className="bg-[#1a1a1a] border border-[#333] px-3 py-2 rounded"
-                    />
+            {/* WORKSPACE */}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 overflow-y-auto">
 
-                    <input
-                        value={slug}
-                        onChange={(e) => setSlug(e.target.value)}
-                        placeholder="slug"
-                        className="bg-[#1a1a1a] border border-[#333] px-3 py-2 rounded font-mono text-sm"
-                    />
+                {/* LEFT COLUMN */}
+                <div className="space-y-6">
+
+                    {/* PRODUCT IDENTITY */}
+                    <Section title="Product Identity">
+                        <Input value={title} onChange={setTitle} placeholder="Product Name" />
+                        <Input value={slug} onChange={setSlug} placeholder="Slug" mono />
+                        <Input value={data.tagline} onChange={(v) => updateField("tagline", v)} placeholder="Tagline" />
+                        <Textarea value={data.description} onChange={(v) => updateField("description", v)} placeholder="Description" />
+                        <Input value={data.stage} onChange={(v) => updateField("stage", v)} placeholder="Current Stage" />
+                        <Input value={data.productImage} onChange={(v) => updateField("productImage", v)} placeholder="Product Image URL" />
+                    </Section>
+
+                    {/* PROBLEM */}
+                    <Section title="Problem">
+                        <Input value={data.problemTitle} onChange={(v) => updateField("problemTitle", v)} placeholder="Problem Title" />
+                        <Textarea value={data.problemDesc} onChange={(v) => updateField("problemDesc", v)} placeholder="Problem Description" />
+                    </Section>
+
+                    {/* FEATURES */}
+                    <Section title="Key Features">
+                        {features.map((f, i) => (
+                            <div key={i} className="flex gap-2">
+                                <Input
+                                    value={f}
+                                    onChange={(v) => updateFeature(i, v)}
+                                    placeholder="Feature"
+                                />
+                                <button onClick={() => removeFeature(i)} className="text-red-500">
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ))}
+                        <AddButton onClick={addFeature} label="Add Feature" />
+                    </Section>
+
+                    {/* SPECIFICATIONS */}
+                    <Section title="Technical Specifications">
+                        {specs.map((spec, i) => (
+                            <div key={i} className="flex gap-2">
+                                <Input
+                                    value={spec.label}
+                                    onChange={(v) => updateSpec(i, "label", v)}
+                                    placeholder="Label"
+                                />
+                                <Input
+                                    value={spec.value}
+                                    onChange={(v) => updateSpec(i, "value", v)}
+                                    placeholder="Value"
+                                />
+                                <button onClick={() => removeSpec(i)} className="text-red-500">
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ))}
+                        <AddButton onClick={addSpec} label="Add Spec" />
+                    </Section>
                 </div>
 
-                {/* TAGLINE */}
-                <input
-                    value={data.tagline || ""}
-                    onChange={(e) => updateField("tagline", e.target.value)}
-                    placeholder="Tagline"
-                    className="bg-[#1a1a1a] border border-[#333] px-3 py-2 rounded"
-                />
+                {/* RIGHT COLUMN */}
+                <div className="space-y-6">
 
-                {/* DESCRIPTION */}
-                <textarea
-                    rows={4}
-                    value={data.description || ""}
-                    onChange={(e) => updateField("description", e.target.value)}
-                    placeholder="Product Description"
-                    className="bg-[#1a1a1a] border border-[#333] px-3 py-2 rounded"
-                />
+                    {/* ROADMAP */}
+                    <Section title="Roadmap">
+                        {roadmap.map((item, i) => (
+                            <div key={i} className="flex gap-2">
+                                <Input value={item.phase} onChange={(v) => updateRoadmap(i, "phase", v)} placeholder="Phase" />
+                                <Input value={item.task} onChange={(v) => updateRoadmap(i, "task", v)} placeholder="Task" />
+                                <Input value={item.status} onChange={(v) => updateRoadmap(i, "status", v)} placeholder="Status" />
+                                <button onClick={() => removeRoadmap(i)} className="text-red-500">
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ))}
+                        <AddButton onClick={addRoadmap} label="Add Roadmap" />
+                    </Section>
 
-                {/* STAGE */}
-                <input
-                    value={data.stage || ""}
-                    onChange={(e) => updateField("stage", e.target.value)}
-                    placeholder="Current Stage"
-                    className="bg-[#1a1a1a] border border-[#333] px-3 py-2 rounded"
-                />
+                    {/* LINKS */}
+                    <Section title="Links">
+                        <Input value={data.demoLink} onChange={(v) => updateField("demoLink", v)} placeholder="Demo / Prototype Link" />
+                        <Input value={data.pitchDeck} onChange={(v) => updateField("pitchDeck", v)} placeholder="Pitch Deck Link" />
+                    </Section>
 
-                {/* SPECIFICATIONS */}
-                <div className="space-y-2">
-                    <label className="text-sm text-gray-400">Technical Specs</label>
-
-                    {specs.map((spec, i) => (
-                        <div key={i} className="flex gap-2">
-                            <input
-                                value={spec.label}
-                                onChange={(e) => updateSpec(i, "label", e.target.value)}
-                                placeholder="Label"
-                                className="bg-[#1a1a1a] border border-[#333] px-2 py-1 rounded w-1/2"
-                            />
-                            <input
-                                value={spec.value}
-                                onChange={(e) => updateSpec(i, "value", e.target.value)}
-                                placeholder="Value"
-                                className="bg-[#1a1a1a] border border-[#333] px-2 py-1 rounded w-1/2"
-                            />
-                            <button onClick={() => removeSpec(i)} className="text-red-500">
-                                <X size={16} />
-                            </button>
-                        </div>
-                    ))}
-
+                    {/* SUBMIT */}
                     <button
-                        type="button"
-                        onClick={addSpec}
-                        className="flex items-center gap-1 text-sm text-blue-500"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className={`w-full py-3 rounded-lg font-semibold bg-red-600 hover:bg-red-700 transition ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
-                        <Plus size={14} /> Add Spec
+                        {loading ? "Creating..." : "Generate Pitch"}
                     </button>
                 </div>
-
-                {/* ROADMAP */}
-                <div className="space-y-2">
-                    <label className="text-sm text-gray-400">Roadmap</label>
-
-                    {roadmap.map((item, i) => (
-                        <div key={i} className="flex gap-2">
-                            <input
-                                value={item.phase}
-                                onChange={(e) => updateRoadmap(i, "phase", e.target.value)}
-                                placeholder="Phase"
-                                className="bg-[#1a1a1a] border border-[#333] px-2 py-1 rounded w-1/3"
-                            />
-                            <input
-                                value={item.task}
-                                onChange={(e) => updateRoadmap(i, "task", e.target.value)}
-                                placeholder="Task"
-                                className="bg-[#1a1a1a] border border-[#333] px-2 py-1 rounded w-1/3"
-                            />
-                            <input
-                                value={item.status}
-                                onChange={(e) => updateRoadmap(i, "status", e.target.value)}
-                                placeholder="Status"
-                                className="bg-[#1a1a1a] border border-[#333] px-2 py-1 rounded w-1/3"
-                            />
-                            <button onClick={() => removeRoadmap(i)} className="text-red-500">
-                                <X size={16} />
-                            </button>
-                        </div>
-                    ))}
-
-                    <button
-                        type="button"
-                        onClick={addRoadmap}
-                        className="flex items-center gap-1 text-sm text-blue-500"
-                    >
-                        <Plus size={14} /> Add Roadmap
-                    </button>
-                </div>
-
-                {/* LINKS */}
-                <input
-                    value={data.demoLink || ""}
-                    onChange={(e) => updateField("demoLink", e.target.value)}
-                    placeholder="Demo / Prototype Link"
-                    className="bg-[#1a1a1a] border border-[#333] px-3 py-2 rounded"
-                />
-
-                <input
-                    value={data.pitchDeck || ""}
-                    onChange={(e) => updateField("pitchDeck", e.target.value)}
-                    placeholder="Pitch Deck Link"
-                    className="bg-[#1a1a1a] border border-[#333] px-3 py-2 rounded"
-                />
-
-                {/* SUBMIT */}
-                <button
-                    onClick={handleSubmit}
-                    disabled={loading}
-                    className={`w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 py-3 rounded-lg ${loading ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
-                >
-                    {loading ? "Creating..." : "Generate Pitch"}
-                    <Send size={18} />
-                </button>
             </div>
         </div>
     );
 };
+
+/* ---------- REUSABLE UI ---------- */
+
+const Section = ({ title, children }) => (
+    <div className="space-y-3 border border-[#2a2a2a] p-4 rounded-lg bg-[#0f0f10]">
+        <h3 className="text-xs text-gray-400 uppercase tracking-wider">{title}</h3>
+        {children}
+    </div>
+);
+
+const Input = ({ value = "", onChange, placeholder, mono = false }) => (
+    <input
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`w-full bg-[#18181a] border border-[#2f2f31] px-3 py-2 rounded-md text-sm outline-none focus:border-red-500 ${mono ? "font-mono text-xs" : ""}`}
+    />
+);
+
+const Textarea = ({ value = "", onChange, placeholder }) => (
+    <textarea
+        rows={3}
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full bg-[#18181a] border border-[#2f2f31] px-3 py-2 rounded-md text-sm outline-none focus:border-red-500 resize-none"
+    />
+);
+
+const AddButton = ({ onClick, label }) => (
+    <button onClick={onClick} className="text-sm text-blue-500 flex items-center gap-1">
+        <Plus size={14} /> {label}
+    </button>
+);
 
 export default TechForm;

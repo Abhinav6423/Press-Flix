@@ -8,22 +8,25 @@ import CreatePitchCategory from "./mycomp/createPitchCategory";
 import MainForm from "./mycomp/Form/MainForm";
 import PublicPitch from "./mycomp/PublicPitch";
 import PitchReady from "./mycomp/PitchReady";
+import PitchTemplate from "./components/PitchTemplate";
 const App = () => {
   return (
     <Routes>
 
       {/* Public */}
+      {/* <Route path="/tech-land" element={<ServicePitch />} />   TEMPORARY FOR TESTING */}
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Signup />} />
       <Route path="/p/:slug" element={<PublicPitch />} />   {/* <-- MOVE HERE */}
       <Route path="/pitch-ready/:slug" element={<PitchReady />} />
+      <Route path="/demo" element={<PitchTemplate />} />
 
       {/* Protected */}
       <Route element={<ProtectedRoute />}>
         <Route path="/home" element={<Home />} />
         <Route path="/category" element={<CreatePitchCategory />} />
-        <Route path="/creationForm/:category" element={<MainForm />} />
+        <Route path="/create-form" element={<MainForm />} />
       </Route>
 
     </Routes>

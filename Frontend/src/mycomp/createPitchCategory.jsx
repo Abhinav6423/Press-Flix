@@ -36,26 +36,26 @@ const CreatePitchCategory = () => {
             border: 'border-emerald-500/50',
             shadow: 'shadow-emerald-500/20'
         },
-        {
-            id: 'tech',
-            title: 'Tech Product / SaaS',
-            description: 'Software, apps, or digital tools.',
-            icon: Laptop,
-            color: 'text-indigo-400',
-            bg: 'bg-indigo-500/10',
-            border: 'border-indigo-500/50',
-            shadow: 'shadow-indigo-500/20'
-        },
-        {
-            id: 'physical',
-            title: 'Physical Product',
-            description: 'Merch, hardware, or crafts.',
-            icon: Package,
-            color: 'text-rose-400',
-            bg: 'bg-rose-500/10',
-            border: 'border-rose-500/50',
-            shadow: 'shadow-rose-500/20'
-        },
+        // {
+        //     id: 'tech',
+        //     title: 'Tech Product / SaaS',
+        //     description: 'Software, apps, or digital tools.',
+        //     icon: Laptop,
+        //     color: 'text-indigo-400',
+        //     bg: 'bg-indigo-500/10',
+        //     border: 'border-indigo-500/50',
+        //     shadow: 'shadow-indigo-500/20'
+        // },
+        // {
+        //     id: 'physical',
+        //     title: 'Physical Product',
+        //     description: 'Merch, hardware, or crafts.',
+        //     icon: Package,
+        //     color: 'text-rose-400',
+        //     bg: 'bg-rose-500/10',
+        //     border: 'border-rose-500/50',
+        //     shadow: 'shadow-rose-500/20'
+        // },
     ];
 
     const handleContinue = () => {
