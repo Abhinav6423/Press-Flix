@@ -9,6 +9,7 @@ import MainForm from "./mycomp/Form/MainForm";
 import PublicPitch from "./mycomp/PublicPitch";
 import PitchReady from "./mycomp/PitchReady";
 import PitchTemplate from "./components/PitchTemplate";
+import WaitlistDataView from "./mycomp/Waitlist/WaitlistDataView";
 const App = () => {
   return (
     <Routes>
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="/home" element={<Home />} />
         <Route path="/category" element={<CreatePitchCategory />} />
         <Route path="/create-form" element={<MainForm />} />
+        <Route path="/view-waitlist/:slug" element={<WaitlistDataView />} />
       </Route>
 
     </Routes>

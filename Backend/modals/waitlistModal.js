@@ -40,7 +40,7 @@ const waitlistSchema = new mongoose.Schema(
         // },
 
         // 💬 Feedback / Insight
-        suggestion: {
+        feedback: {
             type: String,
             trim: true,
             maxlength: 1000,

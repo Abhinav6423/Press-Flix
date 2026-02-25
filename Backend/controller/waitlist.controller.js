@@ -7,8 +7,8 @@ export const submitWaitlistFormData = async (req, res) => {
         let {
             email,
             name,
-            suggestion,
-            // source,
+            feedback,
+            source,
         } = req.body;
 
         if (!pitchId) {
@@ -24,7 +24,7 @@ export const submitWaitlistFormData = async (req, res) => {
         // Normalize input
         email = email.toLowerCase().trim();
         name = name?.trim();
-        suggestion = suggestion?.trim();
+        feedback = feedback?.trim() || "feedback not provided";
         source = source || "direct";
         // priceExpectation = Number(priceExpectation) || 0;
 
@@ -43,8 +43,8 @@ export const submitWaitlistFormData = async (req, res) => {
             pitch: pitchId,
             email,
             name,
-            suggestion,
-            // source,
+            feedback,
+            source,
             //   isEarlyAdopter,
         });
 
@@ -72,15 +72,22 @@ export const submitWaitlistFormData = async (req, res) => {
 
 export const getWaitlistEntries = async (req, res) => {
     try {
-        const { pitchId } = req.params;
+        const { slug } = req.params;
 
-        if (!pitchId) {
-            return res.status(400).json({ message: "Pitch ID is required" });
+        if (!slug) {
+            return res.status(400).json({ message: "Slug is required" });
         }
 
-        const entries = await Waitlist.find({ pitch: pitchId }).sort({
-            joinedAt: -1,
-        });
+        const pitch = await Pitch.findOne({ slug });
+        if (!pitch) {
+            return res.status(404).json({ message: "Pitch not found" });
+        }
+
+        const entries = await Waitlist.find({ pitch: pitch._id })
+            .populate("pitch", "title slug")
+            .sort({
+                joinedAt: -1,
+            });
 
         if (!entries || entries.length === 0) {
             return res.status(404).json({ message: "No waitlist entries found" });

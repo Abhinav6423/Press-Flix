@@ -9,53 +9,129 @@ import {
 } from "lucide-react";
 import { getPitchBySlugApi } from "../api-calls/pitchUrlOpen.js";
 import { useParams } from "react-router-dom";
+import { trackCtaClick } from "../api-calls/trackCtaClick.js";
+import { submitWaitListForm } from "../api-calls/waitListSubmitForm.js";
+import { toast } from "react-hot-toast";
 
 const PitchTemplate = () => {
     const { slug } = useParams();
 
     const [pitch, setPitch] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     const [formData, setFormData] = useState({
         email: "",
         name: "",
-        wouldUse: "",
-        wouldPay: "",
         feedback: "",
     });
 
-    // 🔹 Fetch pitch data
+    const [submitting, setSubmitting] = useState(false);
+
+    // ================= FETCH PITCH =================
     useEffect(() => {
-        const fetchPitch = async () => {
+        let isMounted = true;
+
+        const fetchPitch = async (retry = 0) => {
             try {
+                setLoading(true);
+                setError(null);
+
                 const res = await getPitchBySlugApi(slug);
-                if (res.success) {
+
+                if (!isMounted) return;
+
+                if (res?.success) {
                     setPitch(res.data);
+                } else {
+                    throw new Error("Pitch not found");
                 }
-            } catch (error) {
-                console.error("Error fetching pitch:", error);
+            } catch (err) {
+                // Retry once (handles cold DB / slow wake)
+                if (retry < 1) return fetchPitch(retry + 1);
+
+                if (isMounted) {
+                    setError("Unable to load this page. Please try again.");
+                }
+            } finally {
+                if (isMounted) setLoading(false);
             }
         };
 
         if (slug) fetchPitch();
+
+        return () => {
+            isMounted = false;
+        };
     }, [slug]);
 
+    // ================= CTA TRACK =================
+    const handleCtaClick = async () => {
+        const pitchId = pitch?._id;
+        if (!pitchId) return;
+
+        try {
+            await trackCtaClick(pitchId);
+        } catch (err) {
+            console.error("CTA tracking failed:", err);
+        }
+    };
+
+    // ================= FORM =================
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Validation Data Submitted:", formData);
-        alert("Waitlist joined successfully! (Demo)");
+        if (!pitch?._id) return;
+
+        try {
+            setSubmitting(true);
+
+            const res = await submitWaitListForm(formData, pitch._id);
+
+            if (res?.success) {
+                toast.success("You're on the waitlist 🎉");
+                setFormData({ email: "", name: "", feedback: "" });
+            } else {
+                throw new Error(res?.message || "Submission failed");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Submission failed. Please try again.");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const scrollToValidation = () => {
+        handleCtaClick();
         const el = document.getElementById("validation-section");
         if (el) el.scrollIntoView({ behavior: "smooth" });
     };
 
     const data = pitch?.data || {};
 
+    // ================= UI STATES =================
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+                Loading...
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-900 text-red-400">
+                {error}
+            </div>
+        );
+    }
+
+    // ================= UI =================
     return (
         <div className="min-h-screen bg-slate-900 text-slate-300 font-sans">
             {/* HERO */}
@@ -66,11 +142,11 @@ const PitchTemplate = () => {
                 </div>
 
                 <h1 className="text-4xl md:text-6xl font-extrabold text-slate-100 mb-6">
-                    {pitch?.title || "Loading..."}
+                    {pitch?.title}
                 </h1>
 
                 <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-10">
-                    {data.pitchLine || ""}
+                    {data.pitchLine}
                 </p>
 
                 <button
@@ -91,6 +167,7 @@ const PitchTemplate = () => {
                 )}
             </header>
 
+            {/* MAIN */}
             <main className="max-w-4xl mx-auto px-6 space-y-16 pb-24">
                 {/* Problem & Solution */}
                 <div className="grid md:grid-cols-2 gap-8">
@@ -130,7 +207,7 @@ const PitchTemplate = () => {
                     </section>
                 </div>
 
-                {/* VALIDATION FORM */}
+                {/* FORM */}
                 <section id="validation-section">
                     <div className="bg-slate-800 border border-slate-700 rounded-2xl p-10 max-w-2xl mx-auto">
                         <h2 className="text-2xl font-bold text-center text-slate-100 mb-6">
@@ -166,11 +243,12 @@ const PitchTemplate = () => {
                             />
 
                             <button
+                                disabled={submitting}
                                 type="submit"
-                                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl flex justify-center items-center gap-2"
+                                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl flex justify-center items-center gap-2 disabled:opacity-60"
                             >
                                 <CheckCircle2 size={18} />
-                                Join Waitlist
+                                {submitting ? "Submitting..." : "Join Waitlist"}
                             </button>
                         </form>
                     </div>

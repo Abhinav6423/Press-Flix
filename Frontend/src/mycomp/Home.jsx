@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Layers, LogOut, Plus, ExternalLink, TrendingUp, Eye, MousePointerClick, LayoutDashboard, BarChart3
+  Layers, LogOut, Plus, ExternalLink, TrendingUp, Eye, MousePointerClick, LayoutDashboard, BarChart3, Users
 } from "lucide-react";
 
 import { useAuth } from "../context/Auth.context";
@@ -162,13 +162,21 @@ const Home = () => {
 
                 <div>
                   <div className="flex items-center gap-2 text-zinc-500 text-xs uppercase tracking-wider mb-1">
-                    <MousePointerClick size={14} /> CTA Clicks
+                    <MousePointerClick size={14} /> Total Waitlists
                   </div>
                   <p className="text-white text-2xl font-mono tabular-nums">
-                    {(topPitch?.analytics?.ctaClicks ?? 0).toLocaleString()}
+                    {(topPitch?.analytics?.waitlistCount ?? 0).toLocaleString()}
                   </p>
                 </div>
               </div>
+
+              {/* ADDED: Hero Card Waitlist Button */}
+              <Link to={`/view-waitlist/${topPitch?.slug}`}>
+                <button className="mt-6 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all shadow-[0_0_15px_-3px_rgba(76,175,80,0.4)]">
+                  View Waitlist Data
+                </button>
+              </Link>
+
             </div>
 
             <div className="flex flex-col items-end justify-center md:border-l border-white/10 md:pl-8 min-w-[200px]">
@@ -176,7 +184,7 @@ const Home = () => {
               <div className="flex items-baseline gap-1 text-emerald-400">
                 <span className="text-6xl font-bold tracking-tighter tabular-nums">
                   {getRatio(
-                    topPitch?.analytics?.ctaClicks,
+                    topPitch?.analytics?.waitlistCount,
                     topPitch?.analytics?.views
                   )}
                 </span>
@@ -246,8 +254,11 @@ const Home = () => {
                   <th className="p-5 text-xs font-medium uppercase tracking-wider text-zinc-500">Title</th>
                   <th className="p-5 text-xs font-medium uppercase tracking-wider text-zinc-500">URL</th>
                   <th className="p-5 text-right text-xs font-medium uppercase tracking-wider text-zinc-500">Views</th>
-                  <th className="p-5 text-right text-xs font-medium uppercase tracking-wider text-zinc-500">Clicks</th>
+                  <th className="p-5 text-right text-xs font-medium uppercase tracking-wider text-zinc-500">WaitLists</th>
                   <th className="p-5 text-right text-xs font-medium uppercase tracking-wider text-zinc-500">Ratio</th>
+
+                  {/* ADDED: Waitlist Data Header */}
+                  <th className="p-5 text-right text-xs font-medium uppercase tracking-wider text-zinc-500">Waitlist Data</th>
                 </tr>
               </thead>
 
@@ -293,7 +304,7 @@ const Home = () => {
                       {/* CLICKS */}
                       <td className="p-5 text-right">
                         <span className="text-sm font-mono text-zinc-400 tabular-nums">
-                          {(pitch.analytics?.ctaClicks ?? 0).toLocaleString()}
+                          {(pitch.analytics?.waitlistCount ?? 0).toLocaleString()}
                         </span>
                       </td>
 
@@ -301,15 +312,25 @@ const Home = () => {
                       <td className="p-5 text-right">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${Number(getRatio(pitch.analytics?.ctaClicks, pitch.analytics?.views)) > 0
-                              ? "bg-emerald-500/10 text-emerald-400"
-                              : "bg-zinc-800 text-zinc-500"
+                            ? "bg-emerald-500/10 text-emerald-400"
+                            : "bg-zinc-800 text-zinc-500"
                             }`}
                         >
                           {getRatio(
-                            pitch.analytics?.ctaClicks,
+                            pitch.analytics?.waitlistCount,
                             pitch.analytics?.views
                           )}%
                         </span>
+                      </td>
+
+                      {/* ADDED: Waitlist Button Column */}
+                      <td className="p-5 text-right">
+                        <Link to={`/view-waitlist/${topPitch?.slug}`}>
+                          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/5 hover:border-white/10 text-xs font-medium text-zinc-300 hover:text-white transition-all">
+                            <Users size={14} />
+                            View Data
+                          </button>
+                        </Link>
                       </td>
 
                     </tr>
@@ -318,7 +339,8 @@ const Home = () => {
 
                 {allPitches.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-zinc-500">
+                    {/* UPDATED: colSpan adjusted to 6 to account for the new column */}
+                    <td colSpan={6} className="p-8 text-center text-zinc-500">
                       No pitches found. Create one to get started.
                     </td>
                   </tr>
@@ -327,7 +349,6 @@ const Home = () => {
             </table>
           </div>
         </div>
-
 
       </main>
     </div>

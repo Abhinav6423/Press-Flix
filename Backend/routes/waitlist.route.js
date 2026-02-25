@@ -5,6 +5,6 @@ const router = express.Router();
 
 
 router.post("/:pitchId", submitWaitlistFormData);
-router.get("/:pitchId", verifyFirebaseToken, getWaitlistEntries);
+router.get("/:slug", verifyFirebaseToken, getWaitlistEntries);
 
 export default router;  
