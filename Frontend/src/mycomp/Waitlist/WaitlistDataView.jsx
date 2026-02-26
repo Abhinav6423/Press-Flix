@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { viewWaitlistData } from "../../api-calls/viewWaitlistData";
 import { getPitchBySlugApi } from "../../api-calls/pitchUrlOpen.js";
-
+import Loader from "../Loader.jsx";
 const WaitlistDataView = () => {
   const { slug } = useParams();
 
@@ -51,7 +51,7 @@ const WaitlistDataView = () => {
 
   /* ================= LOADING ================= */
 
-  if (pitchLoading || waitlistLoading) return null;
+  if (pitchLoading || waitlistLoading) return <Loader />;
 
   const title = pitchDetails?.title || "Project Not Found";
   const count = waitlistData.length;
