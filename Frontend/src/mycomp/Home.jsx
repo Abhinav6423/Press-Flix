@@ -14,6 +14,7 @@ import { getTopPerformingPitch } from "../api-calls/topPerformingPitch";
 import { getAllUsersPitchCreated } from "../api-calls/allUsersPitchCreated";
 import Navbar from "./Navbar";
 import { motion } from "framer-motion";
+import Loader from "./Loader";
 const Home = () => {
   const { userData: user, loading, logoutUser } = useAuth();
 
@@ -26,7 +27,7 @@ const Home = () => {
     queryKey: ["topPitch"],
     queryFn: async () => {
       const res = await getTopPerformingPitch();
-      console.log('top pitch data' , res.data)
+      console.log('top pitch data', res.data)
       return res?.success ? res.data : null;
     },
     enabled: !!user && !loading,
@@ -67,7 +68,7 @@ const Home = () => {
 
   /* ================= AUTH CHECK ================= */
 
-  if (loading || topPitchLoading || allPitchesLoading) return null;
+  if (loading || topPitchLoading || allPitchesLoading) return <Loader />;
   if (!user) return <Navigate to="/login" replace />;
 
   /* ================= UI ================= */
@@ -162,8 +163,8 @@ const Home = () => {
               {/* Button */}
               <Link to={`/view-waitlist/${topPitch?.slug || ""}`} className="w-max">
                 <button className="bg-[#00c853] hover:bg-[#00e676] transition-colors text-white font-semibold px-4 py-2 rounded-lg text-sm">
-                View Waitlist Data
-              </button>
+                  View Waitlist Data
+                </button>
               </Link>
             </div>
 
