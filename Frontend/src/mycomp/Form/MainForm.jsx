@@ -12,6 +12,7 @@ const MainForm = () => {
   const [valueProp, setValueProp] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [slug, setSlug] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
 
@@ -40,6 +41,7 @@ const MainForm = () => {
       return;
     }
 
+    
     const pitchData = {
       title,
       slug,
@@ -54,8 +56,8 @@ const MainForm = () => {
     };
 
     try {
+      setIsSubmitting(true);
       const res = await createPitchApi(pitchData);
-
       if (res.success) {
         toast.success("Pitch created successfully 🚀");
         navigate(`/pitch-ready/${slug}`);
@@ -65,6 +67,8 @@ const MainForm = () => {
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong");
+    } finally{
+      setIsSubmitting(false);
     }
   };
 
@@ -212,7 +216,7 @@ const MainForm = () => {
                 type="submit"
                 className="cursor-pointer group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full bg-white px-8 font-medium text-black transition-all duration-300 hover:bg-zinc-200  w-full"
               >
-                <span className="mr-2">Generate Page</span>
+                <span className="mr-2">{isSubmitting ? "Generating Your Pitch..." : "Generate Your Pitch"}</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </button>
             </div>
