@@ -38,7 +38,7 @@ const UserSchema = new mongoose.Schema(
       default: 0,
     },
 
-    totalCtaClicks: {
+    totalWaitlist: {
       type: Number,
       default: 0,
     },

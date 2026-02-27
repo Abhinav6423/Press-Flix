@@ -1,6 +1,6 @@
 import Pitch from "../modals/pitchModal.js";
 import User from "../modals/userModal.js";
-
+import PitchVisit from "../modals/pitchVisitModal.js";
 export const createPitch = async (req, res) => {
     try {
         if (!req.user?.id) {
@@ -150,24 +150,7 @@ export const deletePitch = async (req, res) => {
     }
 };
 
-export const trackCtaClick = async (req, res) => {
-    try {
-        const pitch = await Pitch.findByIdAndUpdate(req.params.id, {
-            $inc: { "analytics.ctaClicks": 1 },
-        });
 
-        await User.findByIdAndUpdate(
-            pitch.owner,
-
-            { $inc: { totalCtaClicks: 1 } }   // ✅ correct field
-        );
-
-        res.json({ success: true, message: "Click tracked successfully" });
-    } catch (err) {
-        console.error("trackCtaClick error:", err);
-        res.status(500).json({ message: "Failed to track click" });
-    }
-};
 
 export const getPitchBySlug = async (req, res) => {
     try {
@@ -202,6 +185,78 @@ export const topPerformingPitch = async (req, res) => {
     } catch (error) {
         console.error("topPerformingPitch error:", error);
         res.status(500).json({ message: "Failed to fetch top pitch" });
+    }
+};
+
+
+// Track unique visit
+export const trackPitchVisit = async (req, res) => {
+    try {
+        const { pitchId, visitorId } = req.body;
+
+        if (!pitchId || !visitorId) {
+            return res.status(400).json({
+                success: false,
+                message: "pitchId and visitorId are required",
+            });
+        }
+
+        // 🔥 Just try creating
+        // If duplicate → MongoDB unique index will throw error
+        await PitchVisit.create({
+            pitchId,
+            visitorId,
+        });
+
+
+        // 2. Increment owner's total views (correct field)
+        await Pitch.findByIdAndUpdate(
+            pitchId,
+            { $inc: { "analytics.uniqueVisitors": 1 } }   // ✅ correct field
+        );
+
+        return res.status(201).json({
+            success: true,
+            message: "Visit tracked",
+        });
+
+    } catch (error) {
+
+        // Duplicate key error (visitor already counted)
+        if (error.code === 11000) {
+            return res.status(200).json({
+                success: true,
+                message: "Visitor already counted",
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+        });
+    }
+};
+
+
+// Get total unique visitors for a pitch
+export const getUniqueVisitors = async (req, res) => {
+    try {
+        const { pitchId } = req.params;
+
+        const count = await PitchVisit.countDocuments({
+            pitchId,
+        });
+
+        return res.status(200).json({
+            success: true,
+            uniqueVisitors: count,
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+        });
     }
 };
 

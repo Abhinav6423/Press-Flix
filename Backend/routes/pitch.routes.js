@@ -2,14 +2,15 @@ console.log("✅ Pitch routes file loaded");
 
 import express from "express";
 import {
-    createPitch,
-    getPitchBySlug,
-    getPublicPitch,
-    updatePitch,
-    deletePitch,
-    trackCtaClick,
-    topPerformingPitch,
-    getMyPitches
+   createPitch,
+   getPitchBySlug,
+   getPublicPitch,
+   updatePitch,
+   deletePitch,
+   topPerformingPitch,
+   getMyPitches,
+   trackPitchVisit,
+   getUniqueVisitors
 } from "../controller/pitch.controller.js";
 
 import verifyFirebaseToken from "../middlewares/verifyFirebaseToken.js";
@@ -17,7 +18,7 @@ import verifyFirebaseToken from "../middlewares/verifyFirebaseToken.js";
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    res.send("Pitch routes working");
+   res.send("Pitch routes working");
 })
 
 /* =========================
@@ -40,7 +41,8 @@ router.get("/slug/:slug", getPitchBySlug);
 /* =========================
    ANALYTICS
 ========================= */
-router.post("/:id/cta", trackCtaClick);
+router.post("/:id/visit", trackPitchVisit);
+router.get("/:id/visitors", getUniqueVisitors);
 
 /* =========================
    DYNAMIC ID ROUTES (ALWAYS LAST)

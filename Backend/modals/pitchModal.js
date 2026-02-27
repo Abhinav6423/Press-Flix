@@ -28,6 +28,7 @@ const PitchSchema = new mongoose.Schema(
             views: { type: Number, default: 0 },
             ctaClicks: { type: Number, default: 0 },
             waitlistCount: { type: Number, default: 0 },
+            uniqueVisitors: { type: Number, default: 0 },
         },
 
         // ctaLink: {

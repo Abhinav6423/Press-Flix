@@ -1,6 +1,6 @@
 import Waitlist from "../modals/waitlistModal.js";
 import Pitch from "../modals/pitchModal.js";
-
+import User from "../modals/userModal.js";
 export const submitWaitlistFormData = async (req, res) => {
     try {
         const { pitchId } = req.params;
@@ -52,6 +52,12 @@ export const submitWaitlistFormData = async (req, res) => {
         await Pitch.findByIdAndUpdate(pitchId, {
             $inc: { "analytics.waitlistCount": 1 },
         });
+
+        // update the totalWaitlist user data 
+        await User.findByIdAndUpdate(pitch.owner, {
+            $inc: { totalWaitlist: 1 },
+        });
+
 
         return res.status(201).json({
             message: "Successfully added to waitlist",

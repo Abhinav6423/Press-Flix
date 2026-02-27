@@ -6,19 +6,24 @@ import {
     TrendingUp,
     CheckCircle2,
     Shield,
+    ArrowRight,
 } from "lucide-react";
 import { getPitchBySlugApi } from "../api-calls/pitchUrlOpen.js";
 import { useParams } from "react-router-dom";
 import { trackCtaClick } from "../api-calls/trackCtaClick.js";
 import { submitWaitListForm } from "../api-calls/waitListSubmitForm.js";
 import { toast } from "react-hot-toast";
-
+import Loader from "../mycomp/Loader.jsx";
+import { trackUniqueVisitors } from "../api-calls/trackUniqueVisitors.js";
 const PitchTemplate = () => {
     const { slug } = useParams();
 
     const [pitch, setPitch] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const hasTracked = React.useRef(false);
+
 
     const [formData, setFormData] = useState({
         email: "",
@@ -65,17 +70,17 @@ const PitchTemplate = () => {
         };
     }, [slug]);
 
-    // ================= CTA TRACK =================
-    const handleCtaClick = async () => {
-        const pitchId = pitch?._id;
-        if (!pitchId) return;
 
-        try {
-            await trackCtaClick(pitchId);
-        } catch (err) {
-            console.error("CTA tracking failed:", err);
+    // ================= TRACK VISITOR =================
+    useEffect(() => {
+        if (pitch?._id && !hasTracked.current) {
+            trackUniqueVisitors(pitch._id);
+            hasTracked.current = true;
         }
-    };
+    }, [pitch?._id]);
+
+    // ================= CTA TRACK =================
+
 
     // ================= FORM =================
     const handleInputChange = (e) => {
@@ -118,7 +123,7 @@ const PitchTemplate = () => {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-                Loading...
+                <Loader />
             </div>
         );
     }

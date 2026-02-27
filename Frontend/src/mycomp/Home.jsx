@@ -3,7 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import {
   Layers, LogOut, Plus,
   LayoutDashboard, Database, FolderOpen,
-  Settings, User, ChevronRight, Activity, TrendingUp, Eye, ExternalLink
+  Settings, Users, ChevronRight, Activity, TrendingUp, Eye, ExternalLink
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -15,51 +15,51 @@ import { getAllUsersPitchCreated } from "../api-calls/allUsersPitchCreated";
 import Navbar from "./Navbar";
 import { motion } from "framer-motion";
 import Loader from "./Loader";
+import { getUniqueVisitors } from "../api-calls/getUniqueVisitors";
+
 const Home = () => {
   const { userData: user, loading, logoutUser } = useAuth();
-
+  console.log('the user data is ' , user)
   /* ================= TANSTACK QUERIES ================= */
 
-  const {
-    data: topPitch,
-    isLoading: topPitchLoading,
-  } = useQuery({
+  // Fetch top performing pitch
+  const { data: topPitch, isLoading: topPitchLoading } = useQuery({
     queryKey: ["topPitch"],
     queryFn: async () => {
       const res = await getTopPerformingPitch();
-      console.log('top pitch data', res.data)
+      console.log('Top Pitch Data is here ', res.data)
       return res?.success ? res.data : null;
     },
     enabled: !!user && !loading,
-    staleTime: 1000 * 60 * 2, // 2 min fresh
+    staleTime: 1000 * 60 * 2,
     refetchOnWindowFocus: false,
   });
 
-  const {
-    data: allPitches = [],
-    isLoading: allPitchesLoading,
-  } = useQuery({
+  // Fetch all pitches created by the user
+  const { data: allPitches = [], isLoading: allPitchesLoading } = useQuery({
     queryKey: ["allPitches"],
     queryFn: async () => {
       const res = await getAllUsersPitchCreated();
+      console.log('All pitch data is here ', res.data)
       return res?.success ? res?.data?.data || [] : [];
     },
     enabled: !!user && !loading,
-    staleTime: 1000 * 30, // 30 sec
+    staleTime: 1000 * 30,
     refetchOnWindowFocus: false,
   });
 
-  //  chart data transformation for recharts - only top 5 pitches by views to keep it clean
+
+
+  /* ================= DERIVED DATA ================= */
 
   const chartData = allPitches.map((pitch) => ({
-    name: pitch.title.length > 15
-      ? pitch.title.slice(0, 15) + "..."
-      : pitch.title,
+    name:
+      pitch.title.length > 15
+        ? pitch.title.slice(0, 15) + "..."
+        : pitch.title,
     views: pitch.analytics?.views ?? 0,
     waitlists: pitch.analytics?.waitlistCount ?? 0,
   }));
-
-  /* ================= HELPERS ================= */
 
   const getRatio = (clicks = 0, views = 0) => {
     if (!views) return "0.0";
@@ -68,12 +68,17 @@ const Home = () => {
 
   /* ================= AUTH CHECK ================= */
 
-  if (loading || topPitchLoading || allPitchesLoading) return <Loader />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (loading || topPitchLoading || allPitchesLoading) {
+    return <Loader />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
 
   /* ================= UI ================= */
   return (
-    // Outer shell
     <div className="flex flex-col h-screen w-full bg-[#050505] text-zinc-300 font-sans overflow-hidden selection:bg-[#00e599]/30">
 
       {/* NAVIGATION (Top Navbar) */}
@@ -123,60 +128,92 @@ const Home = () => {
           </motion.div>
 
           {/* TOP PERFORMING PITCH - Moved inside layout container */}
-          <div className="bg-[#0e1116] border border-gray-800 rounded-2xl p-6 flex flex-col md:flex-row justify-between w-full font-sans text-white mb-8 shadow-xl shadow-black/20">
-            {/* Left Section */}
-            <div className="flex-1">
+          <div className="bg-[#121214]/80 backdrop-blur-md border border-white/[0.06] rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between w-full font-sans text-white mb-8 shadow-xl shadow-black/20 gap-8 md:gap-0">
+
+            {/* --- LEFT SECTION --- */}
+            <div className="flex-1 min-w-0 md:pr-8">
               {/* Badge */}
-              <div className="flex items-center gap-1.5 bg-[#0a2718] text-[#00e676] px-3 py-1 rounded-full text-xs font-bold tracking-wide w-max mb-4">
+              <div className="flex items-center gap-1.5 bg-[#00e599]/10 text-[#00e599] px-3 py-1.5 rounded-full text-xs font-bold tracking-wider w-max mb-5 border border-[#00e599]/20">
                 <TrendingUp size={14} strokeWidth={2.5} />
                 TOP PERFORMING PITCH
               </div>
 
               {/* Title & Link */}
-              <h2 className="text-2xl font-bold mb-1">Lord of the Mysteries</h2>
-              <a
-                href={`${window.location.origin}/#/p/${topPitch?.slug || "your-pitch-slug"}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 text-sm flex items-center gap-1.5 hover:text-gray-300 transition-colors mb-8 w-max"
-              >
-                {`${window.location.origin}/#/p/${topPitch?.slug || "your-pitch-slug"}`}
-                <ExternalLink size={14} />
-              </a>
+              <div className="mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold mb-2 truncate">
+                  {topPitch?.title || "Your Pitch Title"}
+                </h2>
+                <a
+                  href={`${window.location.origin}/#/p/${topPitch?.slug || "your-pitch-slug"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-400 text-sm flex items-center gap-1.5 hover:text-[#00e599] transition-colors w-max max-w-full group"
+                >
+                  <span className="truncate">
+                    {`${window.location.origin}/#/p/${topPitch?.slug || "your-pitch-slug"}`}
+                  </span>
+                  <ExternalLink size={14} className="shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </a>
+              </div>
 
-              {/* Stats */}
-              <div className="flex gap-16 mb-8">
-                <div>
-                  <p className="text-gray-500 text-[11px] font-bold tracking-wider flex items-center gap-1.5 mb-2">
+              {/* Stats Grid - Responsive wrap for mobile */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-8">
+                {/* Views */}
+                <div className="flex flex-col">
+                  <p className="text-zinc-500 text-[11px] font-bold tracking-wider flex items-center gap-1.5 mb-2">
                     <Eye size={14} /> VIEWS
                   </p>
-                  <p className="text-2xl font-semibold">{topPitch?.views || 0}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-[11px] font-bold tracking-wider flex items-center gap-1.5 mb-2">
-                    <Activity size={14} /> % TOTAL WAITLISTS
+                  <p className="text-2xl md:text-3xl font-semibold text-zinc-100">
+                    {topPitch?.analytics?.views || 0}
                   </p>
-                  <p className="text-2xl font-semibold">{topPitch?.analytics.waitlistCount || 0}</p>
+                </div>
+
+                {/* Waitlists */}
+                <div className="flex flex-col">
+                  <p className="text-zinc-500 text-[11px] font-bold tracking-wider flex items-center gap-1.5 mb-2">
+                    <Activity size={14} /> TOTAL WAITLISTS
+                  </p>
+                  <p className="text-2xl md:text-3xl font-semibold text-zinc-100">
+                    {topPitch?.analytics?.waitlistCount || 0}
+                  </p>
+                </div>
+
+                {/* Unique Visitors */}
+                <div className="flex flex-col col-span-2 sm:col-span-1">
+                  <p className="text-zinc-500 text-[11px] font-bold tracking-wider flex items-center gap-1.5 mb-2">
+                    <Users size={14} /> UNIQUE VISITORS
+                  </p>
+                  <p className="text-2xl md:text-3xl font-semibold text-zinc-100">
+                    {topPitch?.analytics?.uniqueVisitors || 0}
+                  </p>
                 </div>
               </div>
 
               {/* Button */}
-              <Link to={`/view-waitlist/${topPitch?.slug || ""}`} className="w-max">
-                <button className="bg-[#00c853] hover:bg-[#00e676] transition-colors text-white font-semibold px-4 py-2 rounded-lg text-sm">
+              <Link to={`/view-waitlist/${topPitch?.slug || ""}`} className="inline-block">
+                <button className="bg-[#00e599] hover:bg-[#00c885] active:scale-[0.98] transition-all text-[#0e1116] font-semibold px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-[#00e599]/20">
                   View Waitlist Data
                 </button>
               </Link>
             </div>
 
-            {/* Right Section (Conversion Rate) */}
-            <div className="mt-8 md:mt-0 md:pl-10 md:border-l border-gray-800 flex flex-col justify-center min-w-[200px]">
-              <p className="text-gray-400 text-sm font-medium mb-1">Conversion Rate</p>
-              <div className="flex items-baseline text-[#00e676]">
-                <span className="text-5xl font-bold">2.3</span>
+            {/* --- MOBILE DIVIDER --- */}
+            <div className="h-px w-full bg-white/[0.06] block md:hidden" />
+
+            {/* --- RIGHT SECTION (Conversion Rate) --- */}
+            <div className="md:pl-8 md:border-l border-white/[0.06] flex flex-col justify-center items-start md:items-center min-w-[200px] shrink-0">
+              <p className="text-zinc-400 text-sm font-medium mb-2">Conversion Rate</p>
+              <div className="flex items-baseline text-[#00e599]">
+                <span className="text-5xl md:text-6xl font-bold tracking-tight">
+                  {getRatio(topPitch?.analytics?.waitlistCount, topPitch?.analytics?.uniqueVisitors) || "0.0"}
+                </span>
                 <span className="text-2xl font-bold ml-1">%</span>
               </div>
-              <p className="text-gray-500 text-xs mt-2">Based on total views</p>
+              <p className="text-zinc-500 text-xs mt-2 text-left md:text-center">
+                Based on total views
+              </p>
             </div>
+
           </div>
 
           {/* STATS CARDS - Now a 4-column grid on large screens */}
@@ -216,7 +253,7 @@ const Home = () => {
 
               <div className="flex items-end justify-between">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
-                  {topPitch?.analytics?.views ?? 0}
+                  {user?.totalViews ?? 0}
                 </h2>
                 <span className="text-[10px] md:text-xs text-[#00e599] font-semibold bg-[#00e599]/10 px-2.5 py-1.5 rounded-lg border border-[#00e599]/20">
                   + Top Pitch
@@ -238,7 +275,7 @@ const Home = () => {
 
               <div className="flex items-end justify-between relative z-10">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
-                  {topPitch?.analytics?.waitlistCount ?? 0}
+                  {user?.totalWaitlist ?? 0}
                 </h2>
                 <span className="text-[10px] md:text-xs text-[#ff8a00] font-semibold bg-[#ff8a00]/10 px-2.5 py-1.5 rounded-lg border border-[#ff8a00]/20">
                   Active
@@ -347,23 +384,44 @@ const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5 }}
-            className="bg-[#121214]/80 backdrop-blur-md border border-white/[0.06] rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-black/20"
+            className="w-full bg-[#121214]/80 backdrop-blur-md border border-white/[0.06] rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-black/20 flex flex-col"
           >
-            <div className="mb-6 md:mb-8">
-              <h3 className="text-lg md:text-xl text-white font-semibold">Pitch Directory</h3>
-              <p className="text-xs md:text-sm text-zinc-500 mt-1">Manage and review all your published assets</p>
+            {/* HEADER */}
+            <div className="mb-6 md:mb-8 flex flex-col">
+              <h3 className="text-xl md:text-2xl text-white font-semibold tracking-tight">
+                Pitch Directory
+              </h3>
+              <p className="text-sm text-zinc-400 mt-1">
+                Manage and review all your published assets
+              </p>
             </div>
 
-            <div className="overflow-x-auto pb-2">
-              <table className="w-full text-sm min-w-[600px]">
+            {/* TABLE CONTAINER - Handles responsive horizontal scrolling */}
+            <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
+              <table className="w-full min-w-[800px] border-collapse">
                 <thead>
-                  <tr className="border-b border-white/[0.08] text-zinc-400 text-[10px] md:text-xs">
-                    <th className="pb-4 text-left font-semibold uppercase tracking-wider">Asset Name</th>
-                    <th className="pb-4 text-left font-semibold uppercase tracking-wider pl-4">Pitch Link</th>
-                    <th className="pb-4 text-right font-semibold uppercase tracking-wider">Views</th>
-                    <th className="pb-4 text-right font-semibold uppercase tracking-wider">Leads</th>
-                    <th className="pb-4 text-right font-semibold uppercase tracking-wider">Ratio</th>
-                    <th className="pb-4 text-right font-semibold uppercase tracking-wider">Action</th>
+                  <tr className="border-b border-white/[0.08] text-zinc-400 text-xs">
+                    <th className="px-4 py-4 text-left font-semibold uppercase tracking-wider whitespace-nowrap">
+                      Asset Name
+                    </th>
+                    <th className="px-4 py-4 text-left font-semibold uppercase tracking-wider whitespace-nowrap">
+                      Pitch Link
+                    </th>
+                    <th className="px-4 py-4 text-right font-semibold uppercase tracking-wider whitespace-nowrap">
+                      Views
+                    </th>
+                    <th className="px-4 py-4 text-right font-semibold uppercase tracking-wider whitespace-nowrap">
+                      Leads
+                    </th>
+                    <th className="px-4 py-4 text-right font-semibold uppercase tracking-wider whitespace-nowrap">
+                      Ratio
+                    </th>
+                    <th className="px-4 py-4 text-right font-semibold uppercase tracking-wider whitespace-nowrap">
+                      Unique Visitors
+                    </th>
+                    <th className="px-4 py-4 text-right font-semibold uppercase tracking-wider whitespace-nowrap">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -372,64 +430,97 @@ const Home = () => {
                       initial="initial"
                       whileHover="hover"
                       key={pitch._id}
-                      className="border-b border-white/[0.03] transition-colors hover:bg-white/[0.02]"
+                      className="border-b border-white/[0.03] transition-colors hover:bg-white/[0.02] group"
                     >
                       {/* ASSET NAME */}
-                      <td className="py-4 md:py-5 text-zinc-200 font-medium flex items-center gap-3 md:gap-4">
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-zinc-800/80 flex shrink-0 items-center justify-center border border-white/5 shadow-inner">
-                          <span className="text-xs md:text-sm font-bold text-zinc-300">{pitch.title.charAt(0)}</span>
+                      <td className="px-4 py-4 md:py-5 text-zinc-200 font-medium whitespace-nowrap">
+                        <div className="flex items-center gap-3 md:gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-zinc-800/80 flex shrink-0 items-center justify-center border border-white/5 shadow-inner transition-colors group-hover:bg-zinc-700/50">
+                            <span className="text-sm font-bold text-zinc-300">
+                              {pitch.title.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="text-sm md:text-base truncate max-w-[150px] sm:max-w-[200px]">
+                            {pitch.title}
+                          </span>
                         </div>
-                        <span className="text-sm md:text-base truncate max-w-[120px] sm:max-w-[180px] md:max-w-none">{pitch.title}</span>
                       </td>
 
-                      {/* PITCH LINK (NEW) */}
-                      <td className="py-4 md:py-5 text-left pl-4">
+                      {/* PITCH LINK */}
+                      <td className="px-4 py-4 md:py-5 text-left whitespace-nowrap">
                         <a
                           href={`${window.location.origin}/#/p/${pitch.slug}`}
                           target="_blank"
                           rel="noreferrer"
                           title={`${window.location.origin}/#/p/${pitch.slug}`}
-                          className="text-xs md:text-sm text-zinc-500 hover:text-[#00e599] transition-colors truncate max-w-[100px] sm:max-w-[150px] inline-block underline-offset-4 hover:underline"
+                          className="text-sm text-zinc-500 hover:text-[#00e599] transition-colors truncate max-w-[150px] inline-block underline-offset-4 hover:underline"
                         >
                           /{pitch.slug}
                         </a>
                       </td>
 
                       {/* VIEWS */}
-                      <td className="py-4 md:py-5 text-right text-zinc-400 text-sm md:text-base">{pitch.analytics?.views ?? 0}</td>
+                      <td className="px-4 py-4 md:py-5 text-right text-zinc-400 text-sm md:text-base whitespace-nowrap">
+                        {pitch.analytics?.views ?? 0}
+                      </td>
 
                       {/* LEADS */}
-                      <td className="py-4 md:py-5 text-right text-zinc-400 text-sm md:text-base">{pitch.analytics?.waitlistCount ?? 0}</td>
+                      <td className="px-4 py-4 md:py-5 text-right text-zinc-400 text-sm md:text-base whitespace-nowrap">
+                        {pitch.analytics?.waitlistCount ?? 0}
+                      </td>
 
                       {/* RATIO */}
-                      <td className="py-4 md:py-5 text-right">
-                        <span className="text-[#00e599] font-semibold text-sm md:text-base">
-                          {getRatio(pitch.analytics?.waitlistCount, pitch.analytics?.views)}%
+                      <td className="px-4 py-4 md:py-5 text-right whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#00e599]/10 text-[#00e599] font-medium text-sm">
+                          {getRatio(
+                            pitch.analytics?.waitlistCount,
+                            pitch.analytics?.views
+                          )}
+                          %
                         </span>
                       </td>
 
+                      {/* UNIQUE VISITORS */}
+                      <td className="px-4 py-4 md:py-5 text-right text-zinc-400 text-sm md:text-base whitespace-nowrap">
+                        {pitch.analytics?.uniqueVisitors ?? 0}
+                      </td>
+
                       {/* ACTION */}
-                      <td className="py-4 md:py-5 text-right">
+                      <td className="px-4 py-4 md:py-5 text-right whitespace-nowrap">
                         <Link to={`/view-waitlist/${pitch.slug}`}>
                           <motion.button
                             variants={{
-                              initial: { backgroundColor: "rgba(255,255,255,0.03)", color: "#a1a1aa" },
-                              hover: { backgroundColor: "rgba(0,229,153,0.1)", color: "#00e599", x: -2 }
+                              initial: {
+                                backgroundColor: "rgba(255,255,255,0.03)",
+                                color: "#a1a1aa",
+                              },
+                              hover: {
+                                backgroundColor: "rgba(0,229,153,0.1)",
+                                color: "#00e599",
+                              },
                             }}
                             transition={{ duration: 0.2 }}
-                            className="p-2 md:p-2.5 rounded-xl border border-white/5 backdrop-blur-sm"
+                            className="px-4 py-2 rounded-xl border border-white/5 backdrop-blur-sm shadow-sm"
                           >
-                            <span className="text-xs md:text-sm font-medium px-1">View</span>
+                            <span className="text-sm font-medium">View</span>
                           </motion.button>
                         </Link>
                       </td>
                     </motion.tr>
                   ))}
+
+                  {/* EMPTY STATE */}
                   {allPitches.length === 0 && (
                     <tr>
-                      {/* Updated colSpan from 5 to 6 to account for the new Link column */}
-                      <td colSpan={6} className="py-8 md:py-10 text-center text-zinc-500 text-sm md:text-base">
-                        No active pitches found. Start by creating one.
+                      {/* Changed colSpan to 7 to match actual column count */}
+                      <td
+                        colSpan={7}
+                        className="py-12 md:py-16 text-center text-zinc-500 text-sm md:text-base"
+                      >
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <span className="text-2xl">📋</span>
+                          <p>No active pitches found. Start by creating one.</p>
+                        </div>
                       </td>
                     </tr>
                   )}
