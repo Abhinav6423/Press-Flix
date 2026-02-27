@@ -2,7 +2,7 @@ import React from "react";
 import { CheckCircle, Copy, ExternalLink, Home } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
-
+import { motion } from "framer-motion";
 const PitchReady = () => {
     const navigate = useNavigate();
     const { slug } = useParams();
