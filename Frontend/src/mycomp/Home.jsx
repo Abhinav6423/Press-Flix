@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link, Navigate } from "react-router-dom";
 import {
   Layers, LogOut, Plus,
@@ -6,9 +6,10 @@ import {
   Settings, Users, ChevronRight, Activity, TrendingUp, Eye, ExternalLink
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer
-} from "recharts";
+import { Suspense } from "react";
+import { useInView } from "react-intersection-observer";
+
+
 import { useAuth } from "../context/Auth.context";
 import { getTopPerformingPitch } from "../api-calls/topPerformingPitch";
 import { getAllUsersPitchCreated } from "../api-calls/allUsersPitchCreated";
@@ -17,9 +18,42 @@ import { motion } from "framer-motion";
 import Loader from "./Loader";
 import { getUniqueVisitors } from "../api-calls/getUniqueVisitors";
 
+const AreaChart = React.lazy(() =>
+  import("recharts").then(m => ({ default: m.AreaChart }))
+);
+
+const Area = React.lazy(() =>
+  import("recharts").then(m => ({ default: m.Area }))
+);
+
+const CartesianGrid = React.lazy(() =>
+  import("recharts").then(m => ({ default: m.CartesianGrid }))
+);
+
+const XAxis = React.lazy(() =>
+  import("recharts").then(m => ({ default: m.XAxis }))
+);
+
+const YAxis = React.lazy(() =>
+  import("recharts").then(m => ({ default: m.YAxis }))
+);
+
+const Tooltip = React.lazy(() =>
+  import("recharts").then(m => ({ default: m.Tooltip }))
+);
+
+const ResponsiveContainer = React.lazy(() =>
+  import("recharts").then(m => ({ default: m.ResponsiveContainer }))
+);
 const Home = () => {
   const { userData: user, loading, logoutUser } = useAuth();
-  console.log('the user data is ' , user)
+  // console.log('the user data is ', user)
+
+
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.2,
+  });
   /* ================= TANSTACK QUERIES ================= */
 
   // Fetch top performing pitch
@@ -27,7 +61,7 @@ const Home = () => {
     queryKey: ["topPitch"],
     queryFn: async () => {
       const res = await getTopPerformingPitch();
-      console.log('Top Pitch Data is here ', res.data)
+      // console.log('Top Pitch Data is here ', res.data)
       return res?.success ? res.data : null;
     },
     enabled: !!user && !loading,
@@ -40,7 +74,7 @@ const Home = () => {
     queryKey: ["allPitches"],
     queryFn: async () => {
       const res = await getAllUsersPitchCreated();
-      console.log('All pitch data is here ', res.data)
+      // console.log('All pitch data is here ', res.data)
       return res?.success ? res?.data?.data || [] : [];
     },
     enabled: !!user && !loading,
@@ -52,14 +86,16 @@ const Home = () => {
 
   /* ================= DERIVED DATA ================= */
 
-  const chartData = allPitches.map((pitch) => ({
-    name:
-      pitch.title.length > 15
-        ? pitch.title.slice(0, 15) + "..."
-        : pitch.title,
-    views: pitch.analytics?.views ?? 0,
-    waitlists: pitch.analytics?.waitlistCount ?? 0,
-  }));
+  const chartData = useMemo(() => {
+    return allPitches.map((pitch) => ({
+      name:
+        pitch.title.length > 15
+          ? pitch.title.slice(0, 15) + "..."
+          : pitch.title,
+      views: pitch.analytics?.views ?? 0,
+      waitlists: pitch.analytics?.waitlistCount ?? 0,
+    }));
+  }, [allPitches]);
 
   const getRatio = (clicks = 0, views = 0) => {
     if (!views) return "0.0";
@@ -79,16 +115,16 @@ const Home = () => {
 
   /* ================= UI ================= */
   return (
-    <div className="flex flex-col h-screen w-full bg-[#050505] text-zinc-300 font-sans overflow-hidden selection:bg-[#00e599]/30">
+    <div className="flex flex-col min-h-screen w-full bg-[#050505] text-zinc-300 font-sans  selection:bg-[#00e599]/30">
 
       {/* NAVIGATION (Top Navbar) */}
       <Navbar user={user} logoutUser={logoutUser} />
 
       {/* MAIN CONTENT AREA - Upgraded with a premium dark gradient */}
-      <main className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/20 via-[#0a0a0c] to-[#050505] rounded-t-[2rem] border-t border-white/[0.08] overflow-y-auto relative shadow-[0_-20px_50px_rgba(0,0,0,0.5)] scroll-smooth">
+      <main className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/20 via-[#0a0a0c] to-[#050505] rounded-t-[2rem] border-t border-white/[0.08] overflow-visible relative shadow-[0_-20px_50px_rgba(0,0,0,0.5)] scroll-smooth">
 
         {/* Subtle, static top-left ambient glow */}
-        <div className="absolute top-0 left-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-[#00e599] opacity-[0.02] blur-[100px] md:blur-[120px] pointer-events-none rounded-full" />
+        <div className="absolute top-0 left-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-[#00e599] opacity-[0.02] blur-[40px] md:blur-[120px] pointer-events-none rounded-full" />
 
         {/* Adjusted paddings for mobile responsiveness */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-12 relative z-10">
@@ -128,7 +164,7 @@ const Home = () => {
           </motion.div>
 
           {/* TOP PERFORMING PITCH - Moved inside layout container */}
-          <div className="bg-[#121214]/80 backdrop-blur-md border border-white/[0.06] rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between w-full font-sans text-white mb-8 shadow-xl shadow-black/20 gap-8 md:gap-0">
+          <div className="bg-[#121214]/80 md:backdrop-blur-md border border-white/[0.06] rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between w-full font-sans text-white mb-8 shadow-xl shadow-black/20 gap-8 md:gap-0">
 
             {/* --- LEFT SECTION --- */}
             <div className="flex-1 min-w-0 md:pr-8">
@@ -225,7 +261,7 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.05 }}
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-gradient-to-b from-[#161618] to-[#121214] border border-white/[0.06] rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-lg shadow-black/20"
+              className="bg-gradient-to-b from-[#161618] to-[#121214] border border-white/[0.06] rounded-3xl p-6 md:p-8 md:backdrop-blur-xl shadow-lg shadow-black/20"
             >
               <p className="text-xs md:text-sm text-zinc-400 font-medium mb-1">Total Pitches</p>
               <p className="text-[10px] md:text-xs text-zinc-600 mb-6 md:mb-8">Active assets in portfolio</p>
@@ -246,7 +282,7 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-gradient-to-b from-[#161618] to-[#121214] border border-white/[0.06] rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-lg shadow-black/20"
+              className="bg-gradient-to-b from-[#161618] to-[#121214] border border-white/[0.06] rounded-3xl p-6 md:p-8 md:backdrop-blur-xl shadow-lg shadow-black/20"
             >
               <p className="text-xs md:text-sm text-zinc-400 font-medium mb-1">Total Views</p>
               <p className="text-[10px] md:text-xs text-zinc-600 mb-6 md:mb-8">Across all your active pitches</p>
@@ -267,7 +303,7 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="relative bg-gradient-to-b from-[#161618] to-[#121214] border border-white/[0.06] rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-lg shadow-black/20 overflow-hidden"
+              className="relative bg-gradient-to-b from-[#161618] to-[#121214] border border-white/[0.06] rounded-3xl p-6 md:p-8 md:backdrop-blur-xl shadow-lg shadow-black/20 overflow-hidden"
             >
               <div className="absolute -bottom-6 -right-6 w-24 h-24 md:w-32 md:h-32 bg-[#ff8a00] opacity-10 blur-[30px] md:blur-[40px] rounded-full pointer-events-none" />
               <p className="text-xs md:text-sm text-zinc-400 font-medium mb-1">Waitlist Signups</p>
@@ -289,7 +325,7 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.3 }}
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-gradient-to-b from-[#161618] to-[#121214] border border-white/[0.06] rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-lg shadow-black/20"
+              className="bg-gradient-to-b from-[#161618] to-[#121214] border border-white/[0.06] rounded-3xl p-6 md:p-8 md:backdrop-blur-xl shadow-lg shadow-black/20"
             >
               <p className="text-xs md:text-sm text-zinc-400 font-medium mb-1">Conversion Rate</p>
               <p className="text-[10px] md:text-xs text-zinc-600 mb-6 md:mb-8">Avg conversion from views to leads</p>
@@ -310,7 +346,7 @@ const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4 }}
-            className="bg-[#121214]/80 backdrop-blur-md border border-white/[0.06] rounded-3xl p-5 sm:p-6 md:p-8 mb-6 shadow-xl shadow-black/20"
+            className="bg-[#121214]/80 md:backdrop-blur-md border border-white/[0.06] rounded-3xl p-5 sm:p-6 md:p-8 mb-6 shadow-xl shadow-black/20"
           >
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
               <div>
@@ -324,58 +360,95 @@ const Home = () => {
             </div>
 
             <div className="w-full h-[250px] sm:h-[280px] md:h-[320px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00e599" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#00e599" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="colorWaitlists" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ff8a00" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#ff8a00" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
+              <div ref={ref} className="w-full h-[250px] sm:h-[280px] md:h-[320px]">
+                {inView && (
+                  <Suspense
+                    fallback={
+                      <div className="w-full h-full flex items-center justify-center text-zinc-500 text-sm">
+                        Loading chart...
+                      </div>
+                    }
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={chartData}
+                        margin={{ top: 10, right: 0, left: -25, bottom: 0 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#00e599" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="#00e599" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="colorWaitlists" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#ff8a00" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="#ff8a00" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
 
-                  <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
-                  <XAxis dataKey="name" stroke="#666" fontSize={10} md:fontSize={12} tickLine={false} axisLine={false} dy={15} />
-                  <YAxis stroke="#666" fontSize={10} md:fontSize={12} tickLine={false} axisLine={false} dx={-10} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
 
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(22, 22, 24, 0.9)",
-                      backdropFilter: "blur(8px)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "12px",
-                      color: "#fff",
-                      fontSize: "12px",
-                      boxShadow: "0 10px 30px -5px rgba(0, 0, 0, 0.5)",
-                      padding: "8px 12px"
-                    }}
-                    itemStyle={{ color: "#e4e4e7" }}
-                    cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4' }}
-                  />
+                        <XAxis
+                          dataKey="name"
+                          stroke="#666"
+                          fontSize={10}
+                          tickLine={false}
+                          axisLine={false}
+                          dy={15}
+                        />
 
-                  <Area
-                    type="monotone"
-                    dataKey="views"
-                    stroke="#00e599"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorViews)"
-                    activeDot={{ r: 5, fill: "#00e599", stroke: "#050505", strokeWidth: 3 }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="waitlists"
-                    stroke="#ff8a00"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorWaitlists)"
-                    activeDot={{ r: 5, fill: "#ff8a00", stroke: "#050505", strokeWidth: 3 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+                        <YAxis
+                          stroke="#666"
+                          fontSize={10}
+                          tickLine={false}
+                          axisLine={false}
+                          dx={-10}
+                        />
+
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "rgba(22, 22, 24, 0.9)",
+                            backdropFilter: "blur(8px)",
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            borderRadius: "12px",
+                            color: "#fff",
+                            fontSize: "12px",
+                            boxShadow: "0 10px 30px -5px rgba(0, 0, 0, 0.5)",
+                            padding: "8px 12px",
+                          }}
+                          itemStyle={{ color: "#e4e4e7" }}
+                          cursor={{
+                            stroke: "rgba(255,255,255,0.1)",
+                            strokeWidth: 1,
+                            strokeDasharray: "4 4",
+                          }}
+                        />
+
+                        <Area
+                          type="monotone"
+                          dataKey="views"
+                          stroke="#00e599"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorViews)"
+                          activeDot={{ r: 5, fill: "#00e599", stroke: "#050505", strokeWidth: 3 }}
+                          isAnimationActive={false}
+                        />
+
+                        <Area
+                          type="monotone"
+                          dataKey="waitlists"
+                          stroke="#ff8a00"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorWaitlists)"
+                          activeDot={{ r: 5, fill: "#ff8a00", stroke: "#050505", strokeWidth: 3 }}
+                          isAnimationActive={false}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </Suspense>
+                )}
+              </div>
             </div>
           </motion.div>
 
@@ -384,7 +457,7 @@ const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5 }}
-            className="w-full bg-[#121214]/80 backdrop-blur-md border border-white/[0.06] rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-black/20 flex flex-col"
+            className="w-full bg-[#121214]/80 md:backdrop-blur-md border border-white/[0.06] rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-black/20 flex flex-col"
           >
             {/* HEADER */}
             <div className="mb-6 md:mb-8 flex flex-col">
@@ -426,9 +499,8 @@ const Home = () => {
                 </thead>
                 <tbody>
                   {allPitches.map((pitch) => (
-                    <motion.tr
-                      initial="initial"
-                      whileHover="hover"
+                    <tr
+
                       key={pitch._id}
                       className="border-b border-white/[0.03] transition-colors hover:bg-white/[0.02] group"
                     >
@@ -474,7 +546,7 @@ const Home = () => {
                         <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#00e599]/10 text-[#00e599] font-medium text-sm">
                           {getRatio(
                             pitch.analytics?.waitlistCount,
-                            pitch.analytics?.views
+                            pitch.analytics?.uniqueVisitors
                           )}
                           %
                         </span>
@@ -506,7 +578,7 @@ const Home = () => {
                           </motion.button>
                         </Link>
                       </td>
-                    </motion.tr>
+                    </tr>
                   ))}
 
                   {/* EMPTY STATE */}
