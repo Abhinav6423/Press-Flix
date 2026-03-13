@@ -112,7 +112,6 @@ const PitchTemplate = () => {
     };
 
     const scrollToValidation = () => {
-        handleCtaClick();
         const el = document.getElementById("validation-section");
         if (el) el.scrollIntoView({ behavior: "smooth" });
     };
@@ -138,133 +137,270 @@ const PitchTemplate = () => {
 
     // ================= UI =================
     return (
-        <div className="min-h-screen bg-slate-900 text-slate-300 font-sans">
-            {/* HERO */}
-            <header className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm mb-8">
-                    <Shield size={14} />
-                    Early Access Validation
+        <div className="min-h-screen bg-[#F4EDE7] text-[#1A1A1A] font-sans">
+
+            {/* ---------- NAV / HERO WRAPPER ---------- */}
+            <div className="max-w-6xl mx-auto px-6 pt-16 pb-20">
+
+                {/* ---------- HERO ---------- */}
+                <header className="bg-white rounded-3xl shadow-xl border border-[#E8E3DD] p-10 md:p-14 grid md:grid-cols-2 gap-10 items-center">
+
+                    {/* LEFT CONTENT */}
+                    <div>
+
+                        <div className="inline-flex items-center px-4 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold mb-6">
+                            Early Access
+                        </div>
+
+                        <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
+                            {pitch?.title}
+                        </h1>
+
+                        <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+                            {data.pitchLine}
+                        </p>
+
+                        <div className="flex gap-4 flex-wrap">
+                            <button
+                                onClick={scrollToValidation}
+                                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-semibold transition"
+                            >
+                                Get Early Access
+                            </button>
+
+                            <button
+                                className="px-6 py-3 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition"
+                            >
+                                Learn More
+                            </button>
+                        </div>
+
+                        <p className="text-xs text-gray-500 mt-5">
+                            Join early testers helping shape this product
+                        </p>
+
+                    </div>
+
+
+                    {/* RIGHT IMAGE */}
+                    {data.coverImage && (
+                        <div className="rounded-2xl overflow-hidden border border-gray-200">
+                            <img
+                                src={data.coverImage}
+                                alt="product preview"
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    )}
+                </header>
+
+
+                {/* ---------- SOCIAL PROOF STYLE BLOCK ---------- */}
+                <div className="grid md:grid-cols-3 gap-6 mt-8">
+
+                    <div className="bg-[#2B2118] text-white rounded-2xl p-6">
+                        <p className="text-3xl font-bold">Early</p>
+                        <p className="text-sm opacity-70 mt-1">
+                            Builders joining the waitlist
+                        </p>
+                    </div>
+
+                    <div className="bg-white border border-[#E8E3DD] rounded-2xl p-6">
+                        <p className="text-3xl font-bold text-orange-500">User</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Feedback shapes roadmap
+                        </p>
+                    </div>
+
+                    <div className="bg-orange-500 text-white rounded-2xl p-6">
+                        <p className="text-3xl font-bold">First</p>
+                        <p className="text-sm opacity-80 mt-1">
+                            Access for early adopters
+                        </p>
+                    </div>
+
                 </div>
 
-                <h1 className="text-4xl md:text-6xl font-extrabold text-slate-100 mb-6">
-                    {pitch?.title}
-                </h1>
+            </div>
 
-                <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-10">
-                    {data.pitchLine}
-                </p>
 
-                <button
-                    onClick={scrollToValidation}
-                    className="px-8 py-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition"
-                >
-                    Join the Waitlist
-                </button>
 
-                {data.coverImage && (
-                    <div className="max-w-4xl mx-auto mt-12 rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
-                        <img
-                            src={data.coverImage}
-                            alt="Concept"
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                )}
-            </header>
+            {/* ---------- MAIN CONTENT ---------- */}
+            <main className="max-w-6xl mx-auto px-6 space-y-8 pb-24">
 
-            {/* MAIN */}
-            <main className="max-w-4xl mx-auto px-6 space-y-16 pb-24">
-                {/* Problem & Solution */}
+                {/* Problem / Solution */}
                 <div className="grid md:grid-cols-2 gap-8">
-                    <section className="bg-slate-800 p-8 rounded-2xl border border-slate-700">
-                        <Target className="text-rose-400 mb-4" />
-                        <h2 className="text-2xl font-bold text-slate-100 mb-3">
+
+                    <section className="bg-white border border-[#E8E3DD] rounded-3xl p-10 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-4">
                             The Problem
                         </h2>
-                        <p>{data.problem}</p>
+
+                        <p className="text-gray-600 leading-relaxed">
+                            {data.problem}
+                        </p>
                     </section>
 
-                    <section className="bg-slate-800 p-8 rounded-2xl border border-slate-700">
-                        <Lightbulb className="text-indigo-400 mb-4" />
-                        <h2 className="text-2xl font-bold text-slate-100 mb-3">
+                    <section className="bg-white border border-[#E8E3DD] rounded-3xl p-10 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-4">
                             The Solution
                         </h2>
-                        <p>{data.solution}</p>
+
+                        <p className="text-gray-600 leading-relaxed">
+                            {data.solution}
+                        </p>
                     </section>
+
                 </div>
 
-                {/* Audience & Value */}
+
+                {/* Audience / Value */}
                 <div className="grid md:grid-cols-2 gap-8">
-                    <section>
-                        <Users className="text-indigo-400 mb-3" />
-                        <h3 className="text-lg font-bold text-slate-100 mb-2">
+
+                    <section className="bg-white border border-[#E8E3DD] rounded-3xl p-8">
+                        <h3 className="text-lg font-semibold mb-2">
                             Who This Is For
                         </h3>
-                        <p>{data.audience}</p>
+
+                        <p className="text-gray-600 text-sm">
+                            {data.audience}
+                        </p>
                     </section>
 
-                    <section>
-                        <TrendingUp className="text-indigo-400 mb-3" />
-                        <h3 className="text-lg font-bold text-slate-100 mb-2">
+                    <section className="bg-white border border-[#E8E3DD] rounded-3xl p-8">
+                        <h3 className="text-lg font-semibold mb-2">
                             Why This Matters
                         </h3>
-                        <p>{data.valueProp}</p>
+
+                        <p className="text-gray-600 text-sm">
+                            {data.valueProp}
+                        </p>
                     </section>
+
                 </div>
 
-                {/* FORM */}
+
+
+                {/* HOW IT WORKS */}
+                <section className="bg-white border border-[#E8E3DD] rounded-3xl p-12">
+
+                    <h2 className="text-2xl font-bold text-center mb-10">
+                        How it works
+                    </h2>
+
+                    <div className="grid md:grid-cols-3 gap-10 text-center">
+
+                        <div>
+                            <div className="w-10 h-10 mx-auto bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold mb-4">
+                                1
+                            </div>
+
+                            <p className="text-gray-600 text-sm">
+                                Join the early waitlist and share your feedback.
+                            </p>
+                        </div>
+
+                        <div>
+                            <div className="w-10 h-10 mx-auto bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold mb-4">
+                                2
+                            </div>
+
+                            <p className="text-gray-600 text-sm">
+                                We build the MVP based on real user demand.
+                            </p>
+                        </div>
+
+                        <div>
+                            <div className="w-10 h-10 mx-auto bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold mb-4">
+                                3
+                            </div>
+
+                            <p className="text-gray-600 text-sm">
+                                Early users get first access and perks.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                {/* ---------- CONVERSION FORM ---------- */}
                 <section id="validation-section">
-                    <div className="bg-slate-800 border border-slate-700 rounded-2xl p-10 max-w-2xl mx-auto">
-                        <h2 className="text-2xl font-bold text-center text-slate-100 mb-6">
-                            Join the Early Access List
-                        </h2>
+
+                    <div className="bg-white border border-[#E8E3DD] rounded-3xl p-10 max-w-2xl mx-auto shadow-sm">
+
+                        <div className="text-center mb-8">
+
+                            <h2 className="text-3xl font-bold mb-3">
+                                Get early access
+                            </h2>
+
+                            <p className="text-gray-500 text-sm">
+                                Limited early testers are being onboarded
+                            </p>
+
+                        </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
+
                             <input
                                 required
                                 type="email"
                                 name="email"
-                                placeholder="Email"
+                                placeholder="Enter your email"
                                 value={formData.email}
                                 onChange={handleInputChange}
-                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500"
                             />
 
                             <input
                                 type="text"
                                 name="name"
-                                placeholder="Name (optional)"
+                                placeholder="Your name (optional)"
                                 value={formData.name}
                                 onChange={handleInputChange}
-                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500"
                             />
 
                             <textarea
                                 name="feedback"
-                                placeholder="Suggestion (optional)"
+                                placeholder="What feature would make this a no-brainer?"
                                 value={formData.feedback}
                                 onChange={handleInputChange}
-                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3"
+                                rows="3"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500"
                             />
 
                             <button
                                 disabled={submitting}
                                 type="submit"
-                                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl flex justify-center items-center gap-2 disabled:opacity-60"
+                                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition"
                             >
-                                <CheckCircle2 size={18} />
-                                {submitting ? "Submitting..." : "Join Waitlist"}
+                                {submitting ? "Submitting..." : "Get Early Access"}
                             </button>
+
+                            <p className="text-center text-xs text-gray-500">
+                                No spam. Just early access updates.
+                            </p>
+
                         </form>
+
                     </div>
+
                 </section>
+
             </main>
 
-            <footer className="border-t border-slate-800 py-10 text-center text-sm text-slate-500">
-                Idea validation page — not a finished product.
+
+            {/* ---------- FOOTER ---------- */}
+            <footer className="border-t border-[#E8E3DD] py-8 text-center text-xs text-gray-500">
+                This is an idea validation page, not a finished product.
             </footer>
+
         </div>
-    );
+    )
 };
 
 export default PitchTemplate;
