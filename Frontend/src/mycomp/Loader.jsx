@@ -14,7 +14,7 @@ const Loader = () => {
         
         {/* Center Pulsing Core */}
         <div className="w-12 h-12 bg-indigo-600/20 rounded-full flex items-center justify-center animate-pulse">
-           <span className="font-bold text-indigo-400 text-xl">P</span>
+           <span className="font-bold text-indigo-400 text-xl">V</span>
         </div>
         
         {/* Glow Effect behind */}
@@ -24,7 +24,7 @@ const Loader = () => {
       {/* Text Loading */}
       <div className="space-y-2 text-center">
         <h3 className="text-xl font-bold text-white tracking-widest uppercase animate-pulse">
-          Press-Flix
+          Valida
         </h3>
         <p className="text-zinc-500 text-xs tracking-wider">
           Initializing Engine...
