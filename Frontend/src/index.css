@@ -15,3 +15,19 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Good: Hides scrollbar ONLY on the main body/html */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+html,
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

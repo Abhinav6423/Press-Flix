@@ -8,7 +8,7 @@ import {
     Shield,
     ArrowRight,
 } from "lucide-react";
-import { getPitchBySlugApi } from "../api-calls/pitchUrlOpen.js";
+import { getPublicPitch } from "../api-calls/pitchUrlOpen.js";
 import { useParams } from "react-router-dom";
 import { trackCtaClick } from "../api-calls/trackCtaClick.js";
 import { submitWaitListForm } from "../api-calls/waitListSubmitForm.js";
@@ -42,12 +42,13 @@ const PitchTemplate = () => {
                 setLoading(true);
                 setError(null);
 
-                const res = await getPitchBySlugApi(slug);
+                const res = await getPublicPitch(slug);
 
                 if (!isMounted) return;
 
                 if (res?.success) {
                     setPitch(res.data);
+
                 } else {
                     throw new Error("Pitch not found");
                 }
@@ -80,7 +81,16 @@ const PitchTemplate = () => {
     }, [pitch?._id]);
 
     // ================= CTA TRACK =================
+    const handeCtaTrack = async () => {
+        if (!pitch?._id) return;
 
+        try {
+            await trackCtaClick(pitch._id);
+            console.log("CtaTrackApiCalled" , pitch._id);
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     // ================= FORM =================
     const handleInputChange = (e) => {
@@ -167,7 +177,10 @@ const PitchTemplate = () => {
 
                         <div className="flex flex-col sm:flex-row gap-3 md:gap-4 flex-wrap mb-6 md:mb-4">
                             <button
-                                onClick={scrollToValidation}
+                                onClick={() => {
+                                    handeCtaTrack();
+                                    scrollToValidation();
+                                }}
                                 className="w-full sm:w-auto px-6 py-3.5 md:py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-semibold transition"
                             >
                                 Get Early Access

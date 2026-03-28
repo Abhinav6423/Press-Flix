@@ -189,6 +189,38 @@ export const topPerformingPitch = async (req, res) => {
 };
 
 
+// track CTA clicks
+export const trackCtaClicks = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "pitchId is required",
+            });
+        }
+
+        const pitch = await Pitch.findByIdAndUpdate(
+            id,
+
+            { $inc: { "analytics.ctaClicks": 1 } }
+
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "CTA click tracked",
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+        })
+    }
+}
+
+
 // Track unique visit
 export const trackPitchVisit = async (req, res) => {
     try {

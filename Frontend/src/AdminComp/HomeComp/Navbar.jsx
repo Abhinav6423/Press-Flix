@@ -1,6 +1,6 @@
 import React from 'react'
 import { Layers, LogOut } from "lucide-react";
-import logo from "../assets/logo.jpg"
+import logo from "../../assets/logo.jpg"
 const Navbar = ({ user, logoutUser }) => {
     return (
 

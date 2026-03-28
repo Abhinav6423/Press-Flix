@@ -10,7 +10,8 @@ import {
    topPerformingPitch,
    getMyPitches,
    trackPitchVisit,
-   getUniqueVisitors
+   getUniqueVisitors,
+   trackCtaClicks
 } from "../controller/pitch.controller.js";
 
 import verifyFirebaseToken from "../middlewares/verifyFirebaseToken.js";
@@ -43,6 +44,7 @@ router.get("/slug/:slug", getPitchBySlug);
 ========================= */
 router.post("/:id/visit", trackPitchVisit);
 router.get("/:id/visitors", getUniqueVisitors);
+router.get("/:id/cta", trackCtaClicks);
 
 /* =========================
    DYNAMIC ID ROUTES (ALWAYS LAST)

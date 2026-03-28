@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { viewWaitlistData } from "../../api-calls/viewWaitlistData";
-import { getPitchBySlugApi } from "../../api-calls/pitchUrlOpen.js";
+import { getPublicPitch } from "../../api-calls/pitchUrlOpen.js";
 import Loader from "../Loader.jsx";
 const WaitlistDataView = () => {
   const { slug } = useParams();
@@ -17,7 +17,7 @@ const WaitlistDataView = () => {
   const { data: pitchDetails, isLoading: pitchLoading } = useQuery({
     queryKey: ["pitchDetails", slug],
     queryFn: async () => {
-      const res = await getPitchBySlugApi(slug);
+      const res = await getPublicPitch(slug);
       return res?.success ? res.data : null;
     },
     enabled: !!slug,
